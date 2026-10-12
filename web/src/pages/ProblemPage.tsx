@@ -126,8 +126,8 @@ export function ProblemPage() {
               </Reveal>
 
               <Reveal delay={0.55} className="space-y-3">
-                <Magnetic strength={0.15}>
-                  <Button onClick={start} disabled={starting} className="w-full min-w-[300px] py-3">
+                <Magnetic strength={0.15} className="block">
+                  <Button onClick={start} disabled={starting} className="w-full py-3">
                     {starting ? <Spinner /> : null}
                     {mine.length ? "Start a fresh attempt" : "Start designing"}
                   </Button>

@@ -194,7 +194,7 @@ function Report({
         <header className="border-b border-line pb-10">
           <ModeChip feedback={feedback} retryable={evaluation.retryable} onRetry={onRetry} />
           <Reveal delay={0.05}>
-            <h1 className="mt-5 max-w-4xl font-display text-[clamp(1.5rem,2.6vw,2.15rem)] leading-[1.22]">
+            <h1 className="mt-5 max-w-3xl text-[clamp(1.3rem,2vw,1.7rem)] font-semibold leading-[1.35] tracking-[-0.02em]">
               {feedback.headline}
             </h1>
           </Reveal>

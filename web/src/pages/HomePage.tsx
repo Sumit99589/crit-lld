@@ -19,8 +19,8 @@ export function HomePage() {
         <div className="relative mx-auto grid max-w-6xl gap-14 px-4 pb-20 pt-16 sm:px-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-center lg:pb-24 lg:pt-24">
           <div>
             <WordReveal
-              text={"Design it. Get a crit.\nDesign it better."}
-              className="font-display text-[clamp(2.5rem,5.6vw,4.4rem)] leading-[1.02]"
+              text={"Design it.\nGet a crit.\nDesign it better."}
+              className="font-display text-[clamp(2.5rem,5.2vw,4.25rem)] leading-[1.04]"
               delay={0.05}
             />
             <Reveal delay={0.45}>
@@ -288,12 +288,12 @@ function HowItWorks() {
       <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:py-20">
         <h2 className="font-display text-3xl">How feedback works</h2>
         <div className="relative mt-10">
-          <div aria-hidden className="absolute left-6 right-6 top-6 hidden h-px bg-line md:block">
+          <div aria-hidden className="absolute left-6 right-[calc(25%-1rem)] top-6 hidden h-px bg-line md:block">
             <motion.div
               className="h-full origin-left bg-fg"
               initial={reduce ? false : { scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
-              viewport={{ once: true, margin: "-20%" }}
+              viewport={{ once: true, margin: "0px 0px -8% 0px" }}
               transition={{ duration: 1.4, ease: EASE }}
             />
           </div>
@@ -303,7 +303,7 @@ function HowItWorks() {
                 key={s.title}
                 initial={reduce ? false : { opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-20%" }}
+                viewport={{ once: true, margin: "0px 0px -8% 0px" }}
                 transition={{ duration: 0.6, ease: EASE, delay: 0.15 + i * 0.25 }}
                 className="flex items-start gap-4 md:flex-col"
               >
