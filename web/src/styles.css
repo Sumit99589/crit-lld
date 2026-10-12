@@ -1,46 +1,52 @@
 @import "tailwindcss";
 
 @theme {
-  --color-ink: #0a0c10;
-  --color-panel: #11141a;
-  --color-raised: #171b23;
-  --color-line: rgb(255 255 255 / 0.08);
-  --color-line-strong: rgb(255 255 255 / 0.14);
-  --color-fg: #eef1f5;
-  --color-muted: #8b93a1;
-  --color-faint: #5d6574;
-  --color-redline: #ff5a36;
-  --color-redline-soft: rgb(255 90 54 / 0.14);
-  --color-amber: #e9b44c;
-  --color-ok: #7fd1ae;
+  --color-canvas: #f6f6f3;
+  --color-panel: #ffffff;
+  --color-raised: #efeee9;
+  --color-line: rgb(17 20 28 / 0.09);
+  --color-line-strong: rgb(17 20 28 / 0.16);
+  --color-fg: #14161c;
+  --color-muted: #5b616d;
+  --color-faint: #8e949e;
+  --color-redline: #dc4a26;
+  --color-redline-soft: rgb(220 74 38 / 0.1);
+  --color-amber: #b7791f;
+  --color-ok: #1d8a5b;
 
-  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
-  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html {
-  background: var(--color-ink);
+  background: var(--color-canvas);
   color: var(--color-fg);
   font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01", "ss03";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 body {
   min-height: 100dvh;
-  background: var(--color-ink);
+  background: var(--color-canvas);
+}
+
+/* Headings: one family everywhere, weight and tracking do the work. */
+.font-display {
+  font-weight: 650;
+  letter-spacing: -0.035em;
 }
 
 ::selection {
-  background: var(--color-redline-soft);
-  color: var(--color-fg);
+  background: rgb(220 74 38 / 0.18);
 }
 
 :focus-visible {
@@ -49,27 +55,15 @@ body {
   border-radius: 4px;
 }
 
-/* Film grain over everything: cheap depth on a dark page. */
-.grain {
-  pointer-events: none;
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  opacity: 0.045;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+/* Soft light wash behind the home hero. */
+.hero-wash {
+  background:
+    radial-gradient(60% 70% at 12% 0%, rgb(220 74 38 / 0.09), transparent 70%),
+    radial-gradient(50% 60% at 88% 10%, rgb(59 110 246 / 0.08), transparent 70%),
+    linear-gradient(to bottom, #ffffff, var(--color-canvas));
 }
 
-/* Drafting grid that fades out from the top of the page. */
-.blueprint {
-  background-image:
-    linear-gradient(to right, rgb(255 255 255 / 0.045) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(255 255 255 / 0.045) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 70% 60% at 30% 0%, #000 40%, transparent 100%);
-}
-
-/* A redline mark that draws itself under quoted evidence. */
+/* A red mark that draws itself under quoted evidence. */
 .redline {
   background-image: linear-gradient(var(--color-redline), var(--color-redline));
   background-repeat: no-repeat;
@@ -101,7 +95,7 @@ body {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  padding: 1px;
+  padding: 1.5px;
   background: conic-gradient(from var(--beam-angle), transparent 65%, var(--color-redline) 85%, transparent 100%);
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
@@ -119,31 +113,65 @@ body {
 .field {
   width: 100%;
   border-radius: 10px;
-  border: 1px solid var(--color-line);
-  background: rgb(255 255 255 / 0.025);
+  border: 1px solid var(--color-line-strong);
+  background: #fff;
   padding: 0.6rem 0.75rem;
   font-size: 0.875rem;
   line-height: 1.55;
   color: var(--color-fg);
   transition:
     border-color 200ms,
-    background 200ms;
+    box-shadow 200ms;
 }
 .field::placeholder {
   color: var(--color-faint);
 }
 .field:hover {
-  border-color: var(--color-line-strong);
+  border-color: rgb(17 20 28 / 0.26);
 }
 .field:focus {
   outline: none;
-  border-color: rgb(255 90 54 / 0.55);
-  background: rgb(255 255 255 / 0.04);
+  border-color: rgb(220 74 38 / 0.6);
+  box-shadow: 0 0 0 3px rgb(220 74 38 / 0.12);
+}
+
+.card {
+  background: var(--color-panel);
+  border: 1px solid var(--color-line);
+  box-shadow:
+    0 1px 2px rgb(17 20 28 / 0.04),
+    0 4px 16px -8px rgb(17 20 28 / 0.08);
 }
 
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: rgb(255 255 255 / 0.12) transparent;
+  scrollbar-color: rgb(17 20 28 / 0.18) transparent;
+}
+
+/* Drag handles between workspace panes. */
+.pane-handle {
+  position: relative;
+  width: 1px;
+  background: var(--color-line);
+  transition: background 150ms;
+}
+.pane-handle::after {
+  content: "";
+  position: absolute;
+  inset: 0 -4px;
+}
+.pane-handle[aria-orientation="horizontal"] {
+  width: auto;
+  height: 1px;
+}
+.pane-handle[aria-orientation="horizontal"]::after {
+  inset: -4px 0;
+}
+.pane-handle:hover,
+.pane-handle[data-separator="active"],
+.pane-handle:focus-visible {
+  background: var(--color-redline);
+  outline: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -5,11 +5,31 @@ import { api } from "../lib/api";
 import { EASE } from "../lib/format";
 import { useAsync } from "../lib/useAsync";
 
+/** A class box with a review tick in its lower compartment: a design that has been looked at. */
+export function LogoMark({ size = 26 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden className="shrink-0">
+      <rect width="32" height="32" rx="8" className="fill-fg" />
+      <rect x="8" y="8.5" width="16" height="15" rx="2.5" fill="none" stroke="#fff" strokeWidth="2" />
+      <path d="M8 13.5h16" stroke="#fff" strokeWidth="2" />
+      <path
+        d="M12.5 18.6l2.3 2.2 4.7-4.6"
+        fill="none"
+        stroke="#ff6a43"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="[stroke-dasharray:12] [stroke-dashoffset:0] transition-[stroke-dashoffset] duration-500 ease-out-quint group-hover:[stroke-dashoffset:24]"
+      />
+    </svg>
+  );
+}
+
 export function Wordmark() {
   return (
-    <Link to="/" className="group inline-flex items-baseline gap-1.5" aria-label="crit, home">
-      <span className="font-display text-[26px] italic leading-none tracking-tight">crit</span>
-      <span className="relative top-[-2px] h-[3px] w-4 origin-left rounded-full bg-redline transition-transform duration-500 ease-out-quint group-hover:scale-x-150" />
+    <Link to="/" className="group inline-flex items-center gap-2" aria-label="crit, home">
+      <LogoMark />
+      <span className="text-[19px] font-semibold leading-none tracking-[-0.04em]">crit</span>
     </Link>
   );
 }
@@ -57,17 +77,16 @@ export function Layout() {
 
   return (
     <div className="relative min-h-dvh">
-      <div className="grain" aria-hidden />
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:rounded-md focus:bg-fg focus:px-3 focus:py-2 focus:text-ink"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[70] focus:rounded-md focus:bg-fg focus:px-3 focus:py-2 focus:text-canvas"
       >
         Skip to content
       </a>
       <motion.header
         animate={{ y: hidden ? -80 : 0 }}
         transition={{ duration: 0.35, ease: EASE }}
-        className="sticky top-0 z-50 border-b border-line bg-ink/75 backdrop-blur-xl"
+        className="sticky top-0 z-50 border-b border-line bg-canvas/80 backdrop-blur-xl"
       >
         <div
           className={`mx-auto flex h-14 items-center justify-between px-4 sm:px-6 ${inWorkspace ? "max-w-none" : wide ? "max-w-[1320px]" : "max-w-6xl"}`}
@@ -84,9 +103,7 @@ export function Layout() {
               className="hidden items-center gap-2 font-mono text-[11px] text-muted sm:inline-flex"
               title={ai.enabled ? `AI review by ${ai.model}` : "Rule-based feedback only"}
             >
-              <span
-                className={`h-1.5 w-1.5 rounded-full ${ai.enabled ? "bg-ok shadow-[0_0_8px_#7fd1ae]" : "bg-amber"}`}
-              />
+              <span className={`h-1.5 w-1.5 rounded-full ${ai.enabled ? "bg-ok" : "bg-amber"}`} />
               {ai.enabled ? "AI review on" : "Rules-only mode"}
             </span>
           )}

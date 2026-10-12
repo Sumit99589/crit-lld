@@ -37,7 +37,7 @@ export function Preflight({ precheck, onJump }: { precheck: Precheck | undefined
                 <button
                   type="button"
                   onClick={() => onJump(sectionForPath(b.path))}
-                  className="flex w-full items-start gap-2.5 rounded-lg px-2 py-1.5 text-left text-[13px] text-fg/85 transition-colors hover:bg-white/[0.04]"
+                  className="flex w-full items-start gap-2.5 rounded-lg px-2 py-1.5 text-left text-[13px] text-fg/85 transition-colors hover:bg-black/[0.04]"
                 >
                   <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full border border-redline" aria-hidden />
                   {b.message}

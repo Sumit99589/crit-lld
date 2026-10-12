@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panels";
 import { Link, useNavigate, useParams } from "react-router";
 import { ClassDiagram, DiagramLegend, DiagramMarkers } from "../../components/ClassDiagram";
 import { Magnetic } from "../../components/motion";
@@ -7,10 +8,27 @@ import { Button, ErrorPanel, Skeleton, Spinner } from "../../components/ui";
 import { ApiError, api } from "../../lib/api";
 import { EASE, newId, timeAgo } from "../../lib/format";
 import type { DesignCanvas, Precheck, Problem, RevisionSummary } from "../../lib/types";
-import { useAsync, useDebounced } from "../../lib/useAsync";
+import { useAsync, useDebounced, useMediaQuery } from "../../lib/useAsync";
 import { ClassesEditor, NarrativeEditor, RelationshipsEditor, RequirementMapEditor } from "./editors";
 import { Preflight } from "./Preflight";
 import { EMPTY_CANVAS, SECTIONS, sectionForPath, type SectionId } from "./sections";
+
+const layoutStorage = {
+  getItem: (key: string) => {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  setItem: (key: string, value: string) => {
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      // Storage can be unavailable (private mode); sizes just won't persist.
+    }
+  },
+};
 
 type SaveState = "saved" | "dirty" | "saving" | "error";
 type MobilePane = "brief" | "design" | "checks";
@@ -71,6 +89,10 @@ function Workspace({
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string>();
   const [diagramOpen, setDiagramOpen] = useState(false);
+  const desktop = useMediaQuery("(min-width: 1024px)");
+  // Pane sizes are remembered per browser.
+  const columns = useDefaultLayout({ id: "crit-workspace", storage: layoutStorage });
+  const side = useDefaultLayout({ id: "crit-side", storage: layoutStorage });
   const dirty = useRef(false);
   // One key per version of the draft: a double click or a network retry reuses it.
   const idempotencyKey = useRef(newId("sub-"));
@@ -155,206 +177,250 @@ function Workspace({
   const set = (key: "assumptions" | "keyFlow" | "decisions" | "changeResponse") => (v: string) =>
     update((d) => ({ ...d, [key]: v }));
 
+  const canvasPane = (
+    <>
+      <nav
+        className="sticky top-0 z-10 flex gap-1 overflow-x-auto border-b border-line bg-canvas/90 px-4 py-2.5 backdrop-blur scrollbar-thin"
+        aria-label="Canvas sections"
+      >
+        {SECTIONS.map((s) => {
+          const active = s.id === section;
+          const done = s.done(draft);
+          return (
+            <button
+              key={s.id}
+              onClick={() => setSection(s.id)}
+              aria-current={active ? "step" : undefined}
+              className={`relative flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] transition-colors ${active ? "text-canvas" : "text-muted hover:text-fg"}`}
+            >
+              {active && (
+                <motion.span
+                  layoutId="section-pill"
+                  className="absolute inset-0 rounded-full bg-fg"
+                  transition={{ duration: 0.35, ease: EASE }}
+                />
+              )}
+              <span
+                className={`relative h-1.5 w-1.5 rounded-full ${done ? (active ? "bg-canvas" : "bg-ok") : active ? "border border-canvas" : "border border-faint"}`}
+                aria-hidden
+              />
+              <span className="relative">
+                {s.label}
+                {s.id === "classes" && draft.entities.length > 0 && (
+                  <span className="ml-1 opacity-60">{draft.entities.length}</span>
+                )}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
+      <div className="mx-auto max-w-3xl px-4 pb-32 pt-8 sm:px-8">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={section}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8, transition: { duration: 0.15 } }}
+            transition={{ duration: 0.45, ease: EASE }}
+          >
+            <h1 className="font-display text-2xl">{meta.label}</h1>
+            <p className="mb-7 mt-2 max-w-xl text-[14px] leading-relaxed text-muted">{meta.guide}</p>
+
+            {section === "assumptions" && (
+              <NarrativeEditor
+                label="Assumptions"
+                value={draft.assumptions}
+                onChange={set("assumptions")}
+                placeholder={
+                  "One lot only.\nMotorcycles take compact spots, cars regular, vans large.\nCard payments either succeed or the driver retries at the gate."
+                }
+              />
+            )}
+            {section === "classes" && <ClassesEditor draft={draft} update={update} />}
+            {section === "relationships" && <RelationshipsEditor draft={draft} update={update} />}
+            {section === "mapping" && (
+              <RequirementMapEditor draft={draft} update={update} problem={problem} coverage={coverage} />
+            )}
+            {section === "flow" && (
+              <NarrativeEditor
+                label="Key flow"
+                value={draft.keyFlow}
+                onChange={set("keyFlow")}
+                placeholder={
+                  "1. Gate calls ParkingLot.park(vehicle)\n2. ParkingLot asks SpotAllocator for a spot that fits…\n3. If none is free…"
+                }
+              />
+            )}
+            {section === "decisions" && (
+              <NarrativeEditor
+                label="Decisions and trade-offs"
+                value={draft.decisions}
+                onChange={set("decisions")}
+                placeholder="I put pricing behind an interface because… The cost is… I considered … but rejected it because…"
+              />
+            )}
+            {section === "change" && (
+              <>
+                <div className="mb-5 rounded-2xl border border-redline/30 bg-redline/[0.05] p-5">
+                  <p className="font-mono text-[11px] text-redline">{problem.changeScenario.title}</p>
+                  <p className="mt-2 text-[14px] leading-relaxed">{problem.changeScenario.prompt}</p>
+                </div>
+                <NarrativeEditor
+                  label="Response to change"
+                  value={draft.changeResponse}
+                  onChange={set("changeResponse")}
+                  placeholder="New classes: … Existing classes that change: … What stays untouched and why: …"
+                />
+              </>
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        <SectionPager section={section} onGo={setSection} />
+      </div>
+    </>
+  );
+
+  const diagramPane = (fill: boolean) => (
+    <div className={`flex flex-col ${fill ? "h-full" : ""}`}>
+      <div className="flex items-center justify-between px-5 pb-2 pt-4">
+        <h2 className="text-[13px] font-medium text-muted">Class diagram</h2>
+        <span className="flex items-center gap-3 font-mono text-[11px] text-faint">
+          {draft.entities.filter((e) => e.name).length} classes · {draft.relationships.length} links
+          <button
+            type="button"
+            onClick={() => setDiagramOpen(true)}
+            className="rounded-full border border-line-strong bg-panel px-2.5 py-1 text-[11px] text-muted transition-colors hover:text-fg"
+          >
+            Expand
+          </button>
+        </span>
+      </div>
+      <div className={`px-3 ${fill ? "min-h-0 flex-1" : "h-[300px]"}`}>
+        <ClassDiagram entities={draft.entities} relationships={draft.relationships} />
+      </div>
+      <div className="px-5 pb-3 pt-1">
+        <DiagramLegend />
+      </div>
+    </div>
+  );
+
+  const checksPane = (
+    <div className="scrollbar-thin h-full overflow-y-auto px-5 py-5">
+      <Preflight
+        precheck={precheck}
+        onJump={(s) => {
+          setSection(s);
+          setMobilePane("design");
+        }}
+      />
+    </div>
+  );
+
+  const submitPane = (
+    <div className="border-t border-line bg-panel px-5 py-4">
+      <div className="mb-3 flex items-center justify-between font-mono text-[11px] text-muted">
+        <SaveIndicator state={saveState} savedAt={savedAt} />
+        <span className="hidden lg:inline">Ctrl/⌘ + Enter to submit</span>
+      </div>
+      {submitError && (
+        <p role="alert" className="mb-3 text-[13px] text-redline">
+          {submitError}
+        </p>
+      )}
+      <Magnetic strength={0.12} className="block">
+        <Button onClick={submit} disabled={blockers > 0 || submitting} className="w-full py-3">
+          {submitting && <Spinner />}
+          {submitting
+            ? "Submitting"
+            : blockers > 0
+              ? "Finish the checklist to submit"
+              : revisions.length
+                ? `Submit revision ${revisions.length + 1}`
+                : "Submit for review"}
+        </Button>
+      </Magnetic>
+    </div>
+  );
+
   return (
     <div className="lg:h-[calc(100dvh-56px)]">
       <DiagramMarkers />
       <AnimatePresence>
         {diagramOpen && <DiagramOverlay draft={draft} title={problem.title} onClose={() => setDiagramOpen(false)} />}
       </AnimatePresence>
-      <div
-        role="tablist"
-        aria-label="Workspace panes"
-        className="sticky top-14 z-40 flex border-b border-line bg-ink/90 backdrop-blur lg:hidden"
-      >
-        {(["brief", "design", "checks"] as const).map((p) => (
-          <button
-            key={p}
-            role="tab"
-            aria-selected={mobilePane === p}
-            onClick={() => setMobilePane(p)}
-            className={`flex-1 py-3 text-sm capitalize ${mobilePane === p ? "text-fg shadow-[inset_0_-1px_0_#ff5a36]" : "text-muted"}`}
-          >
-            {p === "checks" ? "Diagram & checks" : p}
-          </button>
-        ))}
-      </div>
 
-      <div className="grid grid-cols-[minmax(0,1fr)] lg:h-full lg:grid-cols-[290px_minmax(0,1fr)_minmax(360px,440px)]">
-        {/* Brief */}
-        <aside
-          className={`scrollbar-thin border-line lg:block lg:overflow-y-auto lg:border-r ${mobilePane === "brief" ? "block" : "hidden"}`}
+      {desktop ? (
+        <Group
+          orientation="horizontal"
+          id="crit-workspace"
+          defaultLayout={columns.defaultLayout}
+          onLayoutChanged={columns.onLayoutChanged}
+          className="h-full"
         >
-          <BriefPanel problem={problem} coverage={coverage} revisions={revisions} />
-        </aside>
-
-        {/* Canvas */}
-        <section
-          className={`scrollbar-thin lg:block lg:overflow-y-auto ${mobilePane === "design" ? "block" : "hidden"}`}
-          aria-label="Design canvas"
-        >
-          <nav
-            className="sticky top-0 z-10 flex gap-1 overflow-x-auto border-b border-line bg-ink/90 px-4 py-2.5 backdrop-blur scrollbar-thin"
-            aria-label="Canvas sections"
-          >
-            {SECTIONS.map((s) => {
-              const active = s.id === section;
-              const done = s.done(draft);
-              return (
-                <button
-                  key={s.id}
-                  onClick={() => setSection(s.id)}
-                  aria-current={active ? "step" : undefined}
-                  className={`relative flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] transition-colors ${active ? "text-ink" : "text-muted hover:text-fg"}`}
-                >
-                  {active && (
-                    <motion.span
-                      layoutId="section-pill"
-                      className="absolute inset-0 rounded-full bg-fg"
-                      transition={{ duration: 0.35, ease: EASE }}
-                    />
-                  )}
-                  <span
-                    className={`relative h-1.5 w-1.5 rounded-full ${done ? (active ? "bg-ink" : "bg-ok") : active ? "border border-ink" : "border border-faint"}`}
-                    aria-hidden
-                  />
-                  <span className="relative">
-                    {s.label}
-                    {s.id === "classes" && draft.entities.length > 0 && (
-                      <span className="ml-1 opacity-60">{draft.entities.length}</span>
-                    )}
-                  </span>
-                </button>
-              );
-            })}
-          </nav>
-
-          <div className="mx-auto max-w-3xl px-4 pb-32 pt-8 sm:px-8">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={section}
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8, transition: { duration: 0.15 } }}
-                transition={{ duration: 0.45, ease: EASE }}
+          <Panel id="brief" defaultSize="22" minSize="14" maxSize="40">
+            <div className="scrollbar-thin h-full overflow-y-auto">
+              <BriefPanel problem={problem} coverage={coverage} revisions={revisions} />
+            </div>
+          </Panel>
+          <Separator className="pane-handle" />
+          <Panel id="canvas" defaultSize="46" minSize="28">
+            <section className="scrollbar-thin h-full overflow-y-auto" aria-label="Design canvas">
+              {canvasPane}
+            </section>
+          </Panel>
+          <Separator className="pane-handle" />
+          <Panel id="side" defaultSize="32" minSize="20" maxSize="60">
+            <aside className="flex h-full flex-col bg-panel">
+              <Group
+                orientation="vertical"
+                id="crit-side"
+                defaultLayout={side.defaultLayout}
+                onLayoutChanged={side.onLayoutChanged}
+                className="min-h-0 flex-1"
               >
-                <h1 className="font-display text-4xl tracking-tight">{meta.label}</h1>
-                <p className="mb-7 mt-2 max-w-xl text-[14px] leading-relaxed text-muted">{meta.guide}</p>
-
-                {section === "assumptions" && (
-                  <NarrativeEditor
-                    label="Assumptions"
-                    value={draft.assumptions}
-                    onChange={set("assumptions")}
-                    placeholder={
-                      "One lot only.\nMotorcycles take compact spots, cars regular, vans large.\nCard payments either succeed or the driver retries at the gate."
-                    }
-                  />
-                )}
-                {section === "classes" && <ClassesEditor draft={draft} update={update} />}
-                {section === "relationships" && <RelationshipsEditor draft={draft} update={update} />}
-                {section === "mapping" && (
-                  <RequirementMapEditor draft={draft} update={update} problem={problem} coverage={coverage} />
-                )}
-                {section === "flow" && (
-                  <NarrativeEditor
-                    label="Key flow"
-                    value={draft.keyFlow}
-                    onChange={set("keyFlow")}
-                    placeholder={
-                      "1. Gate calls ParkingLot.park(vehicle)\n2. ParkingLot asks SpotAllocator for a spot that fits…\n3. If none is free…"
-                    }
-                  />
-                )}
-                {section === "decisions" && (
-                  <NarrativeEditor
-                    label="Decisions and trade-offs"
-                    value={draft.decisions}
-                    onChange={set("decisions")}
-                    placeholder="I put pricing behind an interface because… The cost is… I considered … but rejected it because…"
-                  />
-                )}
-                {section === "change" && (
-                  <>
-                    <div className="mb-5 rounded-2xl border border-redline/30 bg-redline/[0.05] p-5">
-                      <p className="font-mono text-[11px] text-redline">{problem.changeScenario.title}</p>
-                      <p className="mt-2 text-[14px] leading-relaxed">{problem.changeScenario.prompt}</p>
-                    </div>
-                    <NarrativeEditor
-                      label="Response to change"
-                      value={draft.changeResponse}
-                      onChange={set("changeResponse")}
-                      placeholder="New classes: … Existing classes that change: … What stays untouched and why: …"
-                    />
-                  </>
-                )}
-              </motion.div>
-            </AnimatePresence>
-
-            <SectionPager section={section} onGo={setSection} />
+                <Panel id="diagram" defaultSize="55" minSize="18">
+                  {diagramPane(true)}
+                </Panel>
+                <Separator className="pane-handle" />
+                <Panel id="checks" defaultSize="45" minSize="12">
+                  {checksPane}
+                </Panel>
+              </Group>
+              {submitPane}
+            </aside>
+          </Panel>
+        </Group>
+      ) : (
+        <>
+          <div
+            role="tablist"
+            aria-label="Workspace panes"
+            className="sticky top-14 z-40 flex border-b border-line bg-canvas/90 backdrop-blur"
+          >
+            {(["brief", "design", "checks"] as const).map((p) => (
+              <button
+                key={p}
+                role="tab"
+                aria-selected={mobilePane === p}
+                onClick={() => setMobilePane(p)}
+                className={`flex-1 py-3 text-sm capitalize ${mobilePane === p ? "text-fg shadow-[inset_0_-2px_0_var(--color-redline)]" : "text-muted"}`}
+              >
+                {p === "checks" ? "Diagram & checks" : p}
+              </button>
+            ))}
           </div>
-        </section>
-
-        {/* Diagram, checks and submit */}
-        <aside
-          className={`flex-col border-line lg:flex lg:min-h-0 lg:border-l ${mobilePane === "checks" ? "flex" : "hidden"}`}
-        >
-          <div className="border-b border-line">
-            <div className="flex items-center justify-between px-5 pb-2 pt-4">
-              <h2 className="text-[13px] font-medium text-muted">Class diagram</h2>
-              <span className="flex items-center gap-3 font-mono text-[11px] text-faint">
-                {draft.entities.filter((e) => e.name).length} classes · {draft.relationships.length} links
-                <button
-                  type="button"
-                  onClick={() => setDiagramOpen(true)}
-                  className="rounded-full border border-line-strong px-2.5 py-1 text-[11px] text-muted transition-colors hover:text-fg"
-                >
-                  Expand
-                </button>
-              </span>
-            </div>
-            <div className="h-[300px] px-3 lg:h-[34vh]">
-              <ClassDiagram entities={draft.entities} relationships={draft.relationships} />
-            </div>
-            <div className="px-5 pb-3 pt-1">
-              <DiagramLegend />
-            </div>
-          </div>
-
-          <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto px-5 py-5">
-            <Preflight
-              precheck={precheck}
-              onJump={(s) => {
-                setSection(s);
-                setMobilePane("design");
-              }}
-            />
-          </div>
-
-          <div className="border-t border-line bg-panel/60 px-5 py-4">
-            <div className="mb-3 flex items-center justify-between font-mono text-[11px] text-muted">
-              <SaveIndicator state={saveState} savedAt={savedAt} />
-              <span className="hidden lg:inline">Ctrl/⌘ + Enter to submit</span>
-            </div>
-            {submitError && (
-              <p role="alert" className="mb-3 text-[13px] text-redline">
-                {submitError}
-              </p>
-            )}
-            <Magnetic strength={0.12} className="block">
-              <Button onClick={submit} disabled={blockers > 0 || submitting} className="w-full py-3">
-                {submitting && <Spinner />}
-                {submitting
-                  ? "Submitting"
-                  : blockers > 0
-                    ? "Finish the checklist to submit"
-                    : revisions.length
-                      ? `Submit revision ${revisions.length + 1}`
-                      : "Submit for review"}
-              </Button>
-            </Magnetic>
-          </div>
-        </aside>
-      </div>
+          {mobilePane === "brief" && <BriefPanel problem={problem} coverage={coverage} revisions={revisions} />}
+          {mobilePane === "design" && <section aria-label="Design canvas">{canvasPane}</section>}
+          {mobilePane === "checks" && (
+            <aside className="bg-panel">
+              {diagramPane(false)}
+              <div className="border-t border-line">{checksPane}</div>
+              {submitPane}
+            </aside>
+          )}
+        </>
+      )}
     </div>
   );
 }
@@ -370,14 +436,14 @@ function DiagramOverlay({ draft, title, onClose }: { draft: DesignCanvas; title:
       role="dialog"
       aria-modal="true"
       aria-label="Class diagram"
-      className="fixed inset-0 z-[80] flex flex-col bg-ink/95 backdrop-blur-md"
+      className="fixed inset-0 z-[80] flex flex-col bg-canvas/95 backdrop-blur-md"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
     >
       <div className="flex items-center justify-between border-b border-line px-6 py-4">
-        <p className="font-display text-2xl">{title} · class diagram</p>
+        <p className="text-lg font-semibold tracking-[-0.02em]">{title} · class diagram</p>
         <div className="flex items-center gap-6">
           <div className="hidden md:block">
             <DiagramLegend />
@@ -433,7 +499,7 @@ function SectionPager({ section, onGo }: { section: SectionId; onGo: (s: Section
       {next && (
         <button
           onClick={() => onGo(next.id)}
-          className="rounded-full border border-line-strong px-4 py-2 transition-colors hover:border-white/30 hover:bg-white/[0.04]"
+          className="rounded-full border border-line-strong px-4 py-2 transition-colors hover:border-black/25 hover:bg-black/[0.04]"
         >
           Next: {next.label.toLowerCase()}
         </button>
@@ -457,7 +523,7 @@ function BriefPanel({
         <Link to={`/problems/${problem.slug}`} className="font-mono text-[11px] text-muted hover:text-fg">
           Brief
         </Link>
-        <h2 className="mt-1 font-display text-3xl leading-none">{problem.title}</h2>
+        <h2 className="mt-1 font-display text-2xl">{problem.title}</h2>
         <p className="mt-3 text-[13px] leading-relaxed text-muted">{problem.context}</p>
       </div>
 
@@ -514,7 +580,7 @@ function BriefPanel({
               <li key={r.submissionId}>
                 <Link
                   to={`/submissions/${r.submissionId}`}
-                  className="flex items-center justify-between rounded-lg px-2 py-1.5 text-[12.5px] transition-colors hover:bg-white/[0.04]"
+                  className="flex items-center justify-between rounded-lg px-2 py-1.5 text-[12.5px] transition-colors hover:bg-black/[0.04]"
                 >
                   <span>Revision {r.revision}</span>
                   <span className="font-mono text-[11px] text-faint">{timeAgo(r.submittedAt)}</span>

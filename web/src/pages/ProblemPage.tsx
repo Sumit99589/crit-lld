@@ -56,10 +56,7 @@ export function ProblemPage() {
               <DifficultyTag difficulty={p.difficulty} />
               <span>~{p.estimatedMinutes} min</span>
             </div>
-            <WordReveal
-              text={p.title}
-              className="font-display text-[clamp(3rem,8vw,6rem)] leading-[0.95] tracking-[-0.02em]"
-            />
+            <WordReveal text={p.title} className="font-display text-[clamp(2.25rem,5vw,3.5rem)] leading-[1.05]" />
             <Reveal delay={0.3}>
               <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted">{p.context}</p>
             </Reveal>
@@ -71,7 +68,7 @@ export function ProblemPage() {
                 <h2 className="mb-5 text-[13px] font-medium text-muted">Requirements</h2>
                 <ol className="space-y-px overflow-hidden rounded-2xl border border-line bg-line">
                   {p.requirements.map((r) => (
-                    <li key={r.id} className="flex gap-5 bg-ink px-5 py-4">
+                    <li key={r.id} className="flex gap-5 bg-panel px-5 py-4">
                       <span className="w-11 shrink-0 pt-0.5 font-mono text-[12px] text-redline">{r.id}</span>
                       <span className="text-[15px] leading-relaxed">{r.text}</span>
                     </li>
@@ -103,7 +100,7 @@ export function ProblemPage() {
               </Reveal>
 
               <Reveal inView>
-                <details className="group rounded-2xl border border-line px-5 py-4 open:bg-panel/50">
+                <details className="group rounded-2xl border border-line px-5 py-4 bg-panel">
                   <summary className="cursor-pointer list-none text-sm text-muted transition-colors marker:hidden hover:text-fg">
                     <span className="group-open:hidden">Stuck? Show {p.hints.length} hints</span>
                     <span className="hidden group-open:inline">Hints</span>
@@ -121,13 +118,10 @@ export function ProblemPage() {
 
             <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
               <Reveal delay={0.45}>
-                <div className="relative overflow-hidden rounded-2xl border border-redline/30 bg-redline/[0.05] p-6">
-                  <p className="font-mono text-[11px] text-redline">The change you'll have to absorb</p>
-                  <h3 className="mt-3 font-display text-3xl leading-none">{p.changeScenario.title}</h3>
+                <div className="relative overflow-hidden rounded-2xl border border-redline/30 bg-redline-soft/50 p-6">
+                  <p className="font-mono text-[11px] text-redline">Then the requirement changes</p>
+                  <h3 className="mt-2 text-xl font-semibold tracking-[-0.02em]">{p.changeScenario.title}</h3>
                   <p className="mt-3 text-[14px] leading-relaxed text-fg/85">{p.changeScenario.prompt}</p>
-                  <p className="mt-4 text-xs leading-relaxed text-muted">
-                    You don't build this. You explain how your design takes it in, and what would have to change.
-                  </p>
                 </div>
               </Reveal>
 
@@ -148,7 +142,7 @@ export function ProblemPage() {
                     {mine.map((a) => {
                       const last = a.revisions.at(-1);
                       return (
-                        <li key={a.attemptId} className="rounded-xl border border-line bg-panel/60 p-4">
+                        <li key={a.attemptId} className="card rounded-xl p-4">
                           <div className="flex items-center justify-between">
                             <span className="font-mono text-[11px] text-muted">
                               {a.revisions.length
@@ -191,10 +185,14 @@ export function ProblemPage() {
               {rubric.data && (
                 <Reveal delay={0.65}>
                   <h3 className="mb-3 text-[13px] font-medium text-muted">You'll be reviewed on</h3>
-                  <ul className="space-y-2.5">
+                  <ul className="flex flex-wrap gap-1.5">
                     {rubric.data.criteria.map((c) => (
-                      <li key={c.id} className="text-[13px] leading-snug">
-                        <span className="text-fg">{c.name}.</span> <span className="text-muted">{c.question}</span>
+                      <li
+                        key={c.id}
+                        title={c.question}
+                        className="rounded-full border border-line-strong bg-panel px-2.5 py-1 text-[12px]"
+                      >
+                        {c.name}
                       </li>
                     ))}
                   </ul>

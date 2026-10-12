@@ -95,7 +95,7 @@ export function ClassesEditor({ draft, update }: { draft: DesignCanvas; update: 
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, x: -24, transition: { duration: 0.2 } }}
             transition={{ duration: 0.45, ease: EASE }}
-            className="rounded-2xl border border-line bg-panel/70 p-4"
+            className="card rounded-2xl p-4"
           >
             <div className="flex flex-wrap items-center gap-2">
               <input
@@ -114,7 +114,7 @@ export function ClassesEditor({ draft, update }: { draft: DesignCanvas; update: 
                     role="radio"
                     aria-checked={e.kind === k}
                     onClick={() => change(e.id, { kind: k })}
-                    className={`relative rounded-full px-2.5 py-1 font-mono text-[11px] transition-colors ${e.kind === k ? "text-ink" : "text-muted hover:text-fg"}`}
+                    className={`relative rounded-full px-2.5 py-1 font-mono text-[11px] transition-colors ${e.kind === k ? "text-canvas" : "text-muted hover:text-fg"}`}
                   >
                     {e.kind === k && (
                       <motion.span
@@ -176,7 +176,7 @@ export function ClassesEditor({ draft, update }: { draft: DesignCanvas; update: 
         <button
           type="button"
           onClick={() => add("class")}
-          className="rounded-full border border-line-strong px-4 py-2 text-sm transition-colors hover:border-white/30 hover:bg-white/[0.04]"
+          className="rounded-full border border-line-strong px-4 py-2 text-sm transition-colors hover:border-black/25 hover:bg-black/[0.04]"
         >
           Add class
         </button>
@@ -235,7 +235,7 @@ export function RelationshipsEditor({ draft, update }: { draft: DesignCanvas; up
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, transition: { duration: 0.15 } }}
             transition={{ duration: 0.35, ease: EASE }}
-            className="grid grid-cols-[1fr_auto] gap-2 rounded-xl border border-line bg-panel/60 p-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-center"
+            className="grid grid-cols-[1fr_auto] gap-2 card rounded-xl p-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-center"
           >
             <select
               className={select}
@@ -294,7 +294,7 @@ export function RelationshipsEditor({ draft, update }: { draft: DesignCanvas; up
       <button
         type="button"
         onClick={add}
-        className="mt-2 rounded-full border border-line-strong px-4 py-2 text-sm transition-colors hover:border-white/30 hover:bg-white/[0.04]"
+        className="mt-2 rounded-full border border-line-strong px-4 py-2 text-sm transition-colors hover:border-black/25 hover:bg-black/[0.04]"
       >
         Add relationship
       </button>
@@ -336,7 +336,7 @@ export function RequirementMapEditor({
         const status =
           coverage.find((c) => c.requirementId === req.id)?.status ?? (selected.length ? "covered" : "unmapped");
         return (
-          <li key={req.id} className="rounded-2xl border border-line bg-panel/60 p-4">
+          <li key={req.id} className="card rounded-2xl p-4">
             <div className="flex gap-3">
               <span className={`font-mono text-[12px] ${status === "covered" ? "text-ok" : "text-redline"}`}>
                 {req.id}
@@ -353,7 +353,9 @@ export function RequirementMapEditor({
                     aria-pressed={on}
                     onClick={() => toggle(req.id, e.id)}
                     className={`rounded-full border px-2.5 py-1 font-mono text-[11.5px] transition-all duration-200 ${
-                      on ? "border-fg bg-fg text-ink" : "border-line text-muted hover:border-line-strong hover:text-fg"
+                      on
+                        ? "border-fg bg-fg text-canvas"
+                        : "border-line text-muted hover:border-line-strong hover:text-fg"
                     }`}
                   >
                     {e.name}

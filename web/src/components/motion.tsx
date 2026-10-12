@@ -116,7 +116,7 @@ export function Magnetic({
 export function Spotlight({ children, className = "" }: { children: ReactNode; className?: string }) {
   const mx = useMotionValue(-600);
   const my = useMotionValue(-600);
-  const bg = useMotionTemplate`radial-gradient(420px circle at ${mx}px ${my}px, rgba(255,90,54,0.09), transparent 70%)`;
+  const bg = useMotionTemplate`radial-gradient(420px circle at ${mx}px ${my}px, rgba(220,74,38,0.06), transparent 70%)`;
   return (
     <div
       className={`group relative overflow-hidden ${className}`}

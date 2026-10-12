@@ -7,9 +7,8 @@ import type { Band, Difficulty, Severity } from "../lib/types";
 type Variant = "primary" | "ghost" | "quiet";
 
 const BUTTON: Record<Variant, string> = {
-  primary:
-    "bg-fg text-ink hover:bg-white shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_10px_40px_-12px_rgba(255,90,54,0.55)]",
-  ghost: "border border-line-strong text-fg hover:border-white/30 hover:bg-white/[0.04]",
+  primary: "bg-fg text-white hover:bg-fg/85 shadow-[0_1px_2px_rgba(17,20,28,0.2),0_8px_24px_-10px_rgba(17,20,28,0.45)]",
+  ghost: "border border-line-strong bg-panel text-fg hover:border-black/25 hover:bg-black/[0.03]",
   quiet: "text-muted hover:text-fg",
 };
 
@@ -69,7 +68,7 @@ export function BandMeter({
       aria-label={band ? `${BAND_LABEL[band]} (${band} of 4)` : "Not assessed"}
     >
       {[1, 2, 3, 4].map((n) => (
-        <span key={n} className={`${pip} overflow-hidden rounded-full bg-white/[0.08]`}>
+        <span key={n} className={`${pip} overflow-hidden rounded-full bg-black/[0.08]`}>
           {band && n <= band && (
             <motion.span
               className={`block h-full rounded-full ${band === 4 ? "bg-ok" : band >= 3 ? "bg-fg/85" : band === 2 ? "bg-amber" : "bg-redline"}`}
@@ -92,7 +91,7 @@ export function BandLabel({ band }: { band: Band }) {
 const SEVERITY_STYLE: Record<Severity, string> = {
   major: "text-redline border-redline/35 bg-redline/10",
   minor: "text-amber border-amber/30 bg-amber/10",
-  note: "text-muted border-line-strong bg-white/[0.03]",
+  note: "text-muted border-line-strong bg-black/[0.03]",
 };
 
 export function SeverityTag({ severity }: { severity: Severity }) {
@@ -114,7 +113,7 @@ export function DifficultyTag({ difficulty }: { difficulty: Difficulty }) {
         {[1, 2, 3].map((n) => (
           <span
             key={n}
-            className={`h-1.5 w-1.5 rounded-full ${n <= DIFFICULTY_DOTS[difficulty] ? "bg-fg/80" : "bg-white/10"}`}
+            className={`h-1.5 w-1.5 rounded-full ${n <= DIFFICULTY_DOTS[difficulty] ? "bg-fg/80" : "bg-black/10"}`}
           />
         ))}
       </span>
@@ -124,7 +123,7 @@ export function DifficultyTag({ difficulty }: { difficulty: Difficulty }) {
 }
 
 export function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded-xl bg-white/[0.04] ${className}`} />;
+  return <div className={`animate-pulse rounded-xl bg-black/[0.04] ${className}`} />;
 }
 
 export function ErrorPanel({ error, onRetry }: { error: Error; onRetry?: () => void }) {

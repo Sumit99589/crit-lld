@@ -110,7 +110,7 @@ function smooth(points: { x: number; y: number }[]): string {
   return `${d} L${last.x},${last.y}`;
 }
 
-const STROKE = "rgba(238,241,245,0.45)";
+const STROKE = "rgba(20,22,28,0.55)";
 
 function edgeStyle(type: RelationType) {
   switch (type) {
@@ -177,8 +177,8 @@ export function ClassDiagram({
               width={n.width}
               height={n.height}
               rx={7}
-              fill={lit ? "rgba(255,90,54,0.10)" : "#11141a"}
-              stroke={lit ? "rgba(255,90,54,0.7)" : "rgba(255,255,255,0.16)"}
+              fill={lit ? "rgba(220,74,38,0.08)" : "#ffffff"}
+              stroke={lit ? "rgba(220,74,38,0.7)" : "rgba(20,22,28,0.22)"}
             />
             {stereotype && (
               <text x={n.width / 2} y={15} textAnchor="middle" className="fill-muted font-mono" fontSize={9}>
@@ -198,7 +198,7 @@ export function ClassDiagram({
             </text>
             {(n.methods.length > 0 || n.hiddenMethods > 0) && (
               <>
-                <line x1={0} x2={n.width} y1={headerH} y2={headerH} stroke="rgba(255,255,255,0.1)" />
+                <line x1={0} x2={n.width} y1={headerH} y2={headerH} stroke="rgba(20,22,28,0.1)" />
                 {n.methods.map((m, i) => (
                   <text key={i} x={10} y={headerH + 15 + i * LINE_H} className="fill-muted font-mono" fontSize={9.5}>
                     {m.length > 32 ? `${m.slice(0, 31)}…` : m}
@@ -245,7 +245,6 @@ export function ClassDiagram({
           </g>
         );
       })}
-
     </svg>
   );
 }
@@ -264,7 +263,7 @@ export function DiagramMarkers() {
           markerHeight="11"
           orient="auto-start-reverse"
         >
-          <path d="M1,1 L11,6 L1,11 Z" fill="#11141a" stroke={STROKE} />
+          <path d="M1,1 L11,6 L1,11 Z" fill="#ffffff" stroke={STROKE} />
         </marker>
         <marker
           id="m-arrow"
@@ -277,16 +276,8 @@ export function DiagramMarkers() {
         >
           <path d="M2,2 L10,6 L2,10" fill="none" stroke={STROKE} strokeWidth="1.3" />
         </marker>
-        <marker
-          id="m-diamond"
-          viewBox="0 0 16 10"
-          refX="1"
-          refY="5"
-          markerWidth="14"
-          markerHeight="9"
-          orient="auto"
-        >
-          <path d="M1,5 L8,1 L15,5 L8,9 Z" fill="#11141a" stroke={STROKE} />
+        <marker id="m-diamond" viewBox="0 0 16 10" refX="1" refY="5" markerWidth="14" markerHeight="9" orient="auto">
+          <path d="M1,5 L8,1 L15,5 L8,9 Z" fill="#ffffff" stroke={STROKE} />
         </marker>
         <marker
           id="m-diamond-filled"
@@ -297,7 +288,7 @@ export function DiagramMarkers() {
           markerHeight="9"
           orient="auto"
         >
-          <path d="M1,5 L8,1 L15,5 L8,9 Z" fill="rgba(238,241,245,0.75)" stroke={STROKE} />
+          <path d="M1,5 L8,1 L15,5 L8,9 Z" fill="rgba(20,22,28,0.8)" stroke={STROKE} />
         </marker>
       </defs>
     </svg>

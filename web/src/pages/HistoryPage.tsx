@@ -12,15 +12,9 @@ export function HistoryPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-12 sm:px-6">
-      <WordReveal
-        text="Progress"
-        className="font-display text-[clamp(3rem,8vw,6rem)] leading-none tracking-[-0.02em]"
-      />
+      <WordReveal text="Progress" className="font-display text-[clamp(2.25rem,5vw,3.25rem)] leading-[1.05]" />
       <Reveal delay={0.25}>
-        <p className="mt-5 max-w-xl text-muted">
-          Every revision you've submitted, and the patterns across them. One weak review is noise; the same gap three
-          times is something to practise.
-        </p>
+        <p className="mt-5 max-w-xl text-muted">Your reviews over time, and the gaps that keep coming back.</p>
       </Reveal>
 
       {data.error && (
@@ -38,7 +32,7 @@ function Body({ history, insights }: { history: AttemptHistory[]; insights: Insi
   if (history.length === 0) {
     return (
       <div className="mt-14 rounded-3xl border border-dashed border-line-strong p-10">
-        <p className="font-display text-3xl">Nothing here yet.</p>
+        <p className="font-display text-2xl">Nothing here yet.</p>
         <p className="mt-2 text-muted">Submit your first design and its review will show up here.</p>
         <ButtonLink to="/#problems" className="mt-6">
           Choose a problem
@@ -76,7 +70,7 @@ function Body({ history, insights }: { history: AttemptHistory[]; insights: Insi
               No structural issue has appeared in more than one attempt.
             </p>
           ) : (
-            <ul className="divide-y divide-line rounded-2xl border border-line">
+            <ul className="card divide-y divide-line rounded-2xl">
               {insights.recurringIssues.map((i) => (
                 <li key={i.code} className="px-5 py-4">
                   <div className="flex items-baseline justify-between gap-3">
@@ -98,7 +92,7 @@ function Body({ history, insights }: { history: AttemptHistory[]; insights: Insi
           </h2>
           <ul className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
             {insights.trends.map((t, i) => (
-              <Reveal key={t.criterion} inView delay={i * 0.05} className="bg-ink p-5">
+              <Reveal key={t.criterion} inView delay={i * 0.05} className="bg-panel p-5">
                 <li className="list-none">
                   <div className="flex items-center justify-between">
                     <p className="text-[14px]">{CRITERION_SHORT[t.criterion as CriterionId]}</p>
@@ -118,10 +112,13 @@ function Body({ history, insights }: { history: AttemptHistory[]; insights: Insi
         <ul className="space-y-4">
           {history.map((a) => (
             <Reveal key={a.attemptId} inView>
-              <li className="rounded-2xl border border-line bg-panel/50 p-5">
+              <li className="card rounded-2xl p-5">
                 <div className="flex flex-wrap items-baseline justify-between gap-3">
                   <div className="flex items-baseline gap-3">
-                    <Link to={`/problems/${a.problemSlug}`} className="font-display text-2xl hover:text-white">
+                    <Link
+                      to={`/problems/${a.problemSlug}`}
+                      className="text-lg font-semibold tracking-[-0.02em] hover:text-redline"
+                    >
                       {a.problemTitle}
                     </Link>
                     <span className="font-mono text-[11px] text-faint">started {timeAgo(a.startedAt)}</span>
@@ -141,7 +138,7 @@ function Body({ history, insights }: { history: AttemptHistory[]; insights: Insi
                       <li key={r.submissionId} className="shrink-0">
                         <Link
                           to={`/submissions/${r.submissionId}`}
-                          className="block w-[220px] rounded-xl border border-line bg-ink px-4 py-3 transition-colors hover:border-line-strong"
+                          className="block w-[220px] rounded-xl border border-line bg-panel px-4 py-3 transition-colors hover:border-line-strong"
                         >
                           <div className="flex items-center justify-between">
                             <span className="text-[13px]">Revision {r.revision}</span>
@@ -182,12 +179,12 @@ function Sparkline({ series }: { series: Band[] }) {
   return (
     <svg viewBox={`-4 0 ${w + 8} ${h}`} className="my-3 h-12 w-full" aria-label={`Bands: ${series.join(", ")}`}>
       {[1, 2, 3, 4].map((b) => (
-        <line key={b} x1={0} x2={w} y1={y(b as Band)} y2={y(b as Band)} stroke="rgba(255,255,255,0.05)" />
+        <line key={b} x1={0} x2={w} y1={y(b as Band)} y2={y(b as Band)} stroke="rgba(17,20,28,0.06)" />
       ))}
       <motion.polyline
         points={points}
         fill="none"
-        stroke="rgba(238,241,245,0.8)"
+        stroke="#14161c"
         strokeWidth={1.5}
         strokeLinejoin="round"
         initial={reduce ? false : { pathLength: 0 }}
@@ -201,7 +198,7 @@ function Sparkline({ series }: { series: Band[] }) {
           cx={series.length > 1 ? i * step : w / 2}
           cy={y(b)}
           r={2.5}
-          fill={b >= 3 ? "#eef1f5" : b === 2 ? "#e9b44c" : "#ff5a36"}
+          fill={b >= 3 ? "#14161c" : b === 2 ? "#b7791f" : "#dc4a26"}
         />
       ))}
     </svg>

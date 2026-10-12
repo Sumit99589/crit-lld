@@ -93,19 +93,17 @@ function Pending({ evaluation, onRetry }: { evaluation: EvaluationView; onRetry:
   const failed = evaluation.status === "failed";
   const [busy, setBusy] = useState(false);
   const steps = [
-    { label: "Saved", detail: "Your design is stored. Nothing is lost if review fails." },
+    { label: "Saved", detail: "Nothing is lost if review fails." },
     {
       label: failed ? "Review failed" : "Reviewing",
-      detail: failed
-        ? (evaluation.lastError ?? "Something went wrong.")
-        : "Structural checks, then the rubric review. Usually 10–20 seconds.",
+      detail: failed ? (evaluation.lastError ?? "Something went wrong.") : "Usually 10–20 seconds.",
     },
-    { label: "Feedback", detail: "Bands, evidence and next steps." },
+    { label: "Feedback", detail: "Grades, evidence, next steps." },
   ];
   const current = 1;
   return (
     <div className="mx-auto mt-16 max-w-xl">
-      <h1 className="font-display text-5xl tracking-tight">
+      <h1 className="font-display text-2xl">
         {failed ? "We couldn't finish the review." : "Your design is in for a crit."}
       </h1>
       <ol className="mt-10 space-y-3">
@@ -196,7 +194,7 @@ function Report({
         <header className="border-b border-line pb-10">
           <ModeChip feedback={feedback} retryable={evaluation.retryable} onRetry={onRetry} />
           <Reveal delay={0.05}>
-            <h1 className="mt-6 max-w-4xl font-display text-[clamp(2rem,4.2vw,3.4rem)] leading-[1.05] tracking-[-0.01em]">
+            <h1 className="mt-5 max-w-4xl font-display text-[clamp(1.5rem,2.6vw,2.15rem)] leading-[1.22]">
               {feedback.headline}
             </h1>
           </Reveal>
@@ -237,7 +235,7 @@ function Report({
         {feedback.comparison && <Comparison comparison={feedback.comparison} />}
 
         <section className="mt-12" aria-labelledby="criteria-heading">
-          <h2 id="criteria-heading" className="mb-5 font-display text-3xl">
+          <h2 id="criteria-heading" className="mb-5 font-display text-2xl">
             Criterion by criterion
           </h2>
           <div className="space-y-4">
@@ -258,10 +256,10 @@ function Report({
 
         <Coverage feedback={feedback} />
 
-        <section className="mt-14 flex flex-col gap-4 rounded-3xl border border-line bg-panel/60 p-7 sm:flex-row sm:items-center sm:justify-between">
+        <section className="card mt-14 flex flex-col gap-4 rounded-3xl p-7 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="font-display text-3xl">Try again.</h2>
-            <p className="mt-1 text-sm text-muted">Revise this design and the next review will show what you fixed.</p>
+            <h2 className="font-display text-2xl">Try again.</h2>
+            <p className="mt-1 text-sm text-muted">The next review shows what you fixed.</p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Magnetic>
@@ -284,7 +282,7 @@ function Report({
       </div>
 
       <aside className="xl:sticky xl:top-20 xl:max-h-[calc(100dvh-6rem)] xl:self-start">
-        <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-panel/70">
+        <div className="flex h-full flex-col overflow-hidden card rounded-2xl">
           <div className="flex items-center justify-between border-b border-line px-5 py-3">
             <h2 className="text-[13px] font-medium">Your submission</h2>
             <span className="font-mono text-[11px] text-muted">{quotes.length} passages cited</span>
@@ -336,7 +334,7 @@ function ModeChip({
             setBusy(true);
             await onRetry().finally(() => setBusy(false));
           }}
-          className="ml-auto inline-flex items-center gap-2 rounded-full border border-line-strong px-3 py-1.5 text-[12px] hover:bg-white/[0.05]"
+          className="ml-auto inline-flex items-center gap-2 rounded-full border border-line-strong px-3 py-1.5 text-[12px] hover:bg-black/[0.05]"
         >
           {busy && <Spinner />}
           Ask for the AI review
@@ -350,12 +348,12 @@ function BandProfile({ feedback }: { feedback: Feedback }) {
   return (
     <Reveal delay={0.2}>
       <h2 className="mb-3 text-[13px] font-medium text-muted">Rubric profile</h2>
-      <ul className="divide-y divide-line rounded-2xl border border-line">
+      <ul className="card divide-y divide-line rounded-2xl">
         {feedback.criteria.map((c, i) => (
           <li key={c.criterion}>
             <a
               href={`#c-${c.criterion}`}
-              className="flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-white/[0.03]"
+              className="flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-black/[0.03]"
             >
               <span className="text-[14px]">{CRITERION_SHORT[c.criterion]}</span>
               <span className="flex items-center gap-3">
@@ -392,7 +390,7 @@ function CriterionCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-6% 0px" }}
       transition={{ duration: 0.6, ease: EASE, delay: (index % 2) * 0.05 }}
-      className="scroll-mt-24 rounded-2xl border border-line bg-panel/50 p-6"
+      className="scroll-mt-24 card rounded-2xl p-6"
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
@@ -469,8 +467,8 @@ function CriterionCard({
 
 function Comparison({ comparison }: { comparison: NonNullable<Feedback["comparison"]> }) {
   return (
-    <section className="mt-12 rounded-3xl border border-line bg-gradient-to-br from-panel to-ink p-7">
-      <h2 className="font-display text-3xl">Since revision {comparison.previousRevision}</h2>
+    <section className="mt-12 rounded-3xl border border-line bg-gradient-to-br from-panel to-canvas p-7">
+      <h2 className="font-display text-2xl">Since revision {comparison.previousRevision}</h2>
       {comparison.bandChanges.length > 0 ? (
         <ul className="mt-5 flex flex-wrap gap-2">
           {comparison.bandChanges.map((c) => {
@@ -536,11 +534,10 @@ function FindingColumn({
 function Findings({ findings }: { findings: Finding[] }) {
   return (
     <section className="mt-14" aria-labelledby="findings-heading">
-      <h2 id="findings-heading" className="font-display text-3xl">
+      <h2 id="findings-heading" className="font-display text-2xl">
         Structural checks
       </h2>
-      <p className="mt-1 text-sm text-muted">Deterministic rules. These are facts about your design, not opinions.</p>
-      <ul className="mt-5 divide-y divide-line rounded-2xl border border-line">
+      <ul className="mt-5 card divide-y divide-line rounded-2xl">
         {findings.map((f) => (
           <li key={`${f.code}:${f.subject ?? ""}`} className="grid gap-2 px-5 py-4 sm:grid-cols-[110px_minmax(0,1fr)]">
             <div className="pt-0.5">
@@ -567,14 +564,14 @@ function Coverage({ feedback }: { feedback: Feedback }) {
   if (feedback.coverage.length === 0) return null;
   return (
     <section className="mt-14" aria-labelledby="coverage-heading">
-      <h2 id="coverage-heading" className="font-display text-3xl">
+      <h2 id="coverage-heading" className="font-display text-2xl">
         Requirement coverage
       </h2>
       <ul className="mt-5 space-y-px overflow-hidden rounded-2xl border border-line bg-line">
         {feedback.coverage.map((c) => (
           <li
             key={c.requirementId}
-            className="grid gap-2 bg-ink px-5 py-3.5 sm:grid-cols-[70px_minmax(0,1fr)_minmax(0,0.8fr)] sm:items-center"
+            className="grid gap-2 bg-panel px-5 py-3.5 sm:grid-cols-[70px_minmax(0,1fr)_minmax(0,0.8fr)] sm:items-center"
           >
             <span className={`font-mono text-[12px] ${c.status === "covered" ? "text-ok" : "text-redline"}`}>
               {c.requirementId}
