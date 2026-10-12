@@ -139,7 +139,7 @@ Abstractions I chose **not** to add: no separate `Rubric` per problem (one rubri
 
 Rules-only bands never exceed *Solid* and are always marked low confidence: rules can prove something is missing, but not that a design is good.
 
-**Cost.** One Haiku call per new design, measured at about 4k input and 2k output tokens, roughly **$0.0015 per review**. Identical inputs are served from a cache. A daily cap and a per-learner hourly cap degrade gracefully to rules-only.
+**Cost.** One Haiku call per new design, measured at about 4k input and 2k output tokens, roughly **$0.0015 per review**. Identical inputs are served from a cache. A lifetime cap (30 for the public demo), a daily cap and a per-learner hourly cap all degrade gracefully to rules-only.
 
 ## 7. When evaluation is slow or fails
 

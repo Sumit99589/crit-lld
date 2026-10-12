@@ -11,6 +11,7 @@ export interface Config {
   anthropicApiKey: string | null;
   llmModel: string;
   llmTimeoutMs: number;
+  llmTotalCalls: number;
   llmDailyCalls: number;
   llmPerLearnerHourly: number;
   evalConcurrency: number;
@@ -30,6 +31,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     // The cheapest current model is plenty for rubric-guided review.
     llmModel: env.LLM_MODEL ?? "claude-haiku-5-5",
     llmTimeoutMs: int(env.LLM_TIMEOUT_MS, 45_000),
+    llmTotalCalls: int(env.LLM_TOTAL_CALLS, Number.POSITIVE_INFINITY),
     llmDailyCalls: int(env.LLM_DAILY_CALLS, 200),
     llmPerLearnerHourly: int(env.LLM_PER_LEARNER_HOURLY, 10),
     evalConcurrency: int(env.EVAL_CONCURRENCY, 2),

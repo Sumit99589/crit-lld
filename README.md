@@ -50,6 +50,7 @@ npm run typecheck
 |---|---|---|
 | `ANTHROPIC_API_KEY` | – | Enables AI review. Without it the app runs in rules-only mode |
 | `LLM_MODEL` | `claude-haiku-5-5` | Model used for the rubric review |
+| `LLM_TOTAL_CALLS` | unlimited | Lifetime cap on paid reviews for the deployment (the public demo uses 30) |
 | `LLM_DAILY_CALLS` | `200` | Hard cap on paid reviews per 24 h; beyond it, rules-only |
 | `LLM_PER_LEARNER_HOURLY` | `10` | Per-learner cap |
 | `AI_REVIEW` | – | Set to `off` to force rules-only mode |
@@ -87,4 +88,5 @@ More detail, including the two change tests and what I'd split out first at scal
 - The deterministic checks are heuristic and English-centric; they produce findings and caps, never top grades.
 - The AI grader isn't calibrated against a hand-graded set yet.
 - Single process (SQLite and an in-process queue). The path out is in the design note.
+- The public demo runs on a free instance: it sleeps when idle (the first load can take ~50 s), its history resets when it restarts, and its AI reviews are capped at 30 in total, after which it falls back to rules-only feedback.
 - The design is described, not executed: no code submission yet.

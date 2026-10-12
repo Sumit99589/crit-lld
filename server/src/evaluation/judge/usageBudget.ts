@@ -15,6 +15,8 @@ export interface UsageLedger {
 }
 
 export interface BudgetLimits {
+  /** Lifetime cap for the whole deployment; Infinity for none. */
+  totalCalls: number;
   dailyCalls: number;
   perLearnerHourly: number;
 }
@@ -34,6 +36,9 @@ export class UsageBudget {
 
   assertAvailable(learnerId: string): void {
     const now = this.clock.now().getTime();
+    if (Number.isFinite(this.limits.totalCalls) && this.ledger.countSince(new Date(0)) >= this.limits.totalCalls) {
+      throw new EvaluatorUnavailableError("budget_exhausted", "This demo's AI review budget is used up.");
+    }
     if (this.ledger.countSince(new Date(now - 24 * HOUR)) >= this.limits.dailyCalls) {
       throw new EvaluatorUnavailableError("budget_exhausted", "The daily AI review budget for this demo is used up.");
     }

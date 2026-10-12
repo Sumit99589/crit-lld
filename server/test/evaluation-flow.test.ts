@@ -78,6 +78,20 @@ describe("evaluation flow", () => {
     });
   });
 
+  it("stops calling the model for everyone once the lifetime budget is spent", async () => {
+    const llm = new FakeLlm();
+    const h = harness({ llm, config: { llmTotalCalls: 1 } });
+    await submitAndSettle(h);
+    const other = parkingCanvas();
+    other.decisions += " Floors are created up front.";
+    const second = await submitAndSettle(h, other);
+    expect(llm.calls).toHaveLength(1);
+    expect(second.evaluation.feedback).toMatchObject({
+      mode: "rules_only",
+      degradedReason: expect.stringContaining("budget"),
+    });
+  });
+
   it("compares a revision with the one before it", async () => {
     const h = harness({ llm: new FakeLlm([judgeOutput({ extensibility: 2 }), judgeOutput({ extensibility: 3 })]) });
     const weaker = parkingCanvas();

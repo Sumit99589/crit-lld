@@ -65,6 +65,7 @@ export const testConfig: Config = {
   anthropicApiKey: null,
   llmModel: "fake-model",
   llmTimeoutMs: 10_000,
+  llmTotalCalls: Number.POSITIVE_INFINITY,
   llmDailyCalls: 100,
   llmPerLearnerHourly: 100,
   evalConcurrency: 2,

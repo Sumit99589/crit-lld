@@ -78,7 +78,11 @@ export function createContainer(options: ContainerOptions) {
 
   const budget = new UsageBudget(
     new SqliteUsageLedger(db),
-    { dailyCalls: config.llmDailyCalls, perLearnerHourly: config.llmPerLearnerHourly },
+    {
+      totalCalls: config.llmTotalCalls,
+      dailyCalls: config.llmDailyCalls,
+      perLearnerHourly: config.llmPerLearnerHourly,
+    },
     clock,
   );
   const judge: Evaluator | null = llm

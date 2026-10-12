@@ -1,17 +1,18 @@
+# Render blueprint. Free plan: the instance sleeps when idle and its disk is
+# ephemeral, so learner history resets on restart. Use a paid plan with a disk
+# (mount it at /data) to keep history.
 services:
   - type: web
     name: crit-lld
     runtime: docker
-    plan: starter
+    plan: free
     healthCheckPath: /api/health
     envVars:
       - key: ANTHROPIC_API_KEY
         sync: false
+      - key: LLM_TOTAL_CALLS
+        value: "30"
       - key: LLM_DAILY_CALLS
-        value: "150"
+        value: "30"
       - key: LLM_PER_LEARNER_HOURLY
-        value: "8"
-    disk:
-      name: crit-data
-      mountPath: /data
-      sizeGB: 1
+        value: "6"
