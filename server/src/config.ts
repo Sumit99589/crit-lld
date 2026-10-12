@@ -1,3 +1,10 @@
+import { existsSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+// server/src or server/dist -> repo root -> web/dist
+const BUILT_WEB = resolve(dirname(fileURLToPath(import.meta.url)), "../../web/dist");
+
 export interface Config {
   port: number;
   databasePath: string;
@@ -26,6 +33,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     llmDailyCalls: int(env.LLM_DAILY_CALLS, 200),
     llmPerLearnerHourly: int(env.LLM_PER_LEARNER_HOURLY, 10),
     evalConcurrency: int(env.EVAL_CONCURRENCY, 2),
-    staticDir: env.STATIC_DIR ?? null,
+    staticDir: env.STATIC_DIR ?? (existsSync(BUILT_WEB) ? BUILT_WEB : null),
   };
 }

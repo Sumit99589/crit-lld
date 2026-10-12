@@ -17,7 +17,11 @@ describe("practice loop over HTTP", () => {
     const attemptId = attempt.body.id;
 
     await api.put(`/api/attempts/${attemptId}/draft`).set(ME).send({ draft: parkingCanvas() }).expect(200);
-    const precheck = await api.post(`/api/attempts/${attemptId}/precheck`).set(ME).send({ draft: parkingCanvas() }).expect(200);
+    const precheck = await api
+      .post(`/api/attempts/${attemptId}/precheck`)
+      .set(ME)
+      .send({ draft: parkingCanvas() })
+      .expect(200);
     expect(precheck.body.readiness).toEqual([]);
 
     const submitted = await api
@@ -46,7 +50,11 @@ describe("practice loop over HTTP", () => {
     const api = request(h.app);
     const { body: attempt } = await api.post("/api/attempts").set(ME).send({ problemSlug: "parking-lot" });
     const send = () =>
-      api.post(`/api/attempts/${attempt.id}/submissions`).set(ME).set("Idempotency-Key", "double-click-1").send({ draft: parkingCanvas() });
+      api
+        .post(`/api/attempts/${attempt.id}/submissions`)
+        .set(ME)
+        .set("Idempotency-Key", "double-click-1")
+        .send({ draft: parkingCanvas() });
 
     const first = await send().expect(202);
     const second = await send().expect(200);
@@ -59,7 +67,11 @@ describe("practice loop over HTTP", () => {
     const api = request(h.app);
     const { body: attempt } = await api.post("/api/attempts").set(ME).send({ problemSlug: "parking-lot" });
     await api.post(`/api/attempts/${attempt.id}/submissions`).set(ME).send({ draft: parkingCanvas() }).expect(202);
-    const again = await api.post(`/api/attempts/${attempt.id}/submissions`).set(ME).send({ draft: parkingCanvas() }).expect(200);
+    const again = await api
+      .post(`/api/attempts/${attempt.id}/submissions`)
+      .set(ME)
+      .send({ draft: parkingCanvas() })
+      .expect(200);
     expect(again.body.submission.revision).toBe(1);
   });
 
@@ -68,7 +80,9 @@ describe("practice loop over HTTP", () => {
     const api = request(h.app);
     const { body: attempt } = await api.post("/api/attempts").set(ME).send({ problemSlug: "parking-lot" });
     const res = await api.post(`/api/attempts/${attempt.id}/submissions`).set(ME).send({ draft: {} }).expect(422);
-    expect(res.body.issues.map((i: { path: string }) => i.path)).toEqual(expect.arrayContaining(["entities", "keyFlow"]));
+    expect(res.body.issues.map((i: { path: string }) => i.path)).toEqual(
+      expect.arrayContaining(["entities", "keyFlow"]),
+    );
     const history = await api.get("/api/history").set(ME);
     expect(history.body[0].revisions).toEqual([]);
   });
@@ -77,7 +91,10 @@ describe("practice loop over HTTP", () => {
     const h = harness();
     const api = request(h.app);
     const { body: attempt } = await api.post("/api/attempts").set(ME).send({ problemSlug: "parking-lot" });
-    const { body: sub } = await api.post(`/api/attempts/${attempt.id}/submissions`).set(ME).send({ draft: parkingCanvas() });
+    const { body: sub } = await api
+      .post(`/api/attempts/${attempt.id}/submissions`)
+      .set(ME)
+      .send({ draft: parkingCanvas() });
 
     await api.get(`/api/attempts/${attempt.id}`).set(SOMEONE_ELSE).expect(404);
     await api.put(`/api/attempts/${attempt.id}/draft`).set(SOMEONE_ELSE).send({ draft: {} }).expect(404);
@@ -99,7 +116,12 @@ describe("practice loop over HTTP", () => {
 
   it("returns 400 for malformed JSON instead of a server error", async () => {
     const h = harness();
-    await request(h.app).post("/api/attempts").set(ME).set("content-type", "application/json").send("{oops").expect(400);
+    await request(h.app)
+      .post("/api/attempts")
+      .set(ME)
+      .set("content-type", "application/json")
+      .send("{oops")
+      .expect(400);
   });
 
   it("refuses to re-run an evaluation that already has full feedback", async () => {

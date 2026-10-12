@@ -20,7 +20,8 @@ const PATTERNS = [
   "visitor",
 ];
 
-const JUSTIFICATION = /\b(because|so that|since|trade-?off|instead of|otherwise|at the cost|downside|lets? (us|me)|allows?|avoids?|without (changing|touching|modifying))\b/i;
+const JUSTIFICATION =
+  /\b(because|so that|since|trade-?off|instead of|otherwise|at the cost|downside|lets? (us|me)|allows?|avoids?|without (changing|touching|modifying))\b/i;
 
 function label(pattern: string): string {
   return pattern.endsWith("pattern") ? `the ${pattern}` : `the ${pattern} pattern`;
@@ -75,7 +76,7 @@ export class NarrativeCheck implements DesignCheck {
         criterion: "behaviour",
         severity: "minor",
         message: "The key flow barely uses the classes you defined.",
-        suggestion: "Describe the flow as calls between your objects, e.g. \"Gate asks SpotAllocator for a spot\".",
+        suggestion: 'Describe the flow as calls between your objects, e.g. "Gate asks SpotAllocator for a spot".',
       });
     }
 
@@ -116,13 +117,17 @@ export class NarrativeCheck implements DesignCheck {
       }
     }
 
-    if (/\bsingleton\b/i.test(`${decisions}\n${keyFlow}`) || model.elements.some((e) => /getinstance/i.test(e.methods.join(" ")))) {
+    if (
+      /\bsingleton\b/i.test(`${decisions}\n${keyFlow}`) ||
+      model.elements.some((e) => /getinstance/i.test(e.methods.join(" ")))
+    ) {
       findings.push({
         code: "SINGLETON_USED",
         criterion: "abstraction",
         severity: "note",
         message: "The design relies on a singleton.",
-        suggestion: "Singletons make testing and running two instances side by side harder. Consider passing the instance in instead.",
+        suggestion:
+          "Singletons make testing and running two instances side by side harder. Consider passing the instance in instead.",
       });
     }
 

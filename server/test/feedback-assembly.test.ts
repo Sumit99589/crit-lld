@@ -9,8 +9,21 @@ import { compareRevisions } from "../src/evaluation/revisionComparer.js";
 const rendered = `## Key flow
 SpotAllocator scans each Floor for a free spot and calls occupy() under a lock, so a concurrent request gets a different spot.`;
 
-function assessment(criterion: CriterionId, band: 1 | 2 | 3 | 4, source: "ai" | "rules", evidence: string[] = []): CriterionAssessment {
-  return { criterion, band, source, evidence: evidence.map((text) => ({ text, verified: false })), concern: "c", suggestion: "s", confidence: "high" };
+function assessment(
+  criterion: CriterionId,
+  band: 1 | 2 | 3 | 4,
+  source: "ai" | "rules",
+  evidence: string[] = [],
+): CriterionAssessment {
+  return {
+    criterion,
+    band,
+    source,
+    evidence: evidence.map((text) => ({ text, verified: false })),
+    concern: "c",
+    suggestion: "s",
+    confidence: "high",
+  };
 }
 
 function report(source: "ai" | "rules", band: 1 | 2 | 3 | 4, evidence: string[] = []): EvaluatorReport {
@@ -47,7 +60,12 @@ describe("FeedbackAssembler", () => {
   it("prefers the judge's verdict and keeps rule findings", () => {
     const rules = report("rules", 2);
     rules.findings.push({ code: "ORPHAN_ELEMENT", criterion: "relationships", severity: "minor", message: "m" });
-    const feedback = assembler.assemble({ rubric: LLD_RUBRIC, rendered, rules, judge: report("ai", 3, ["under a lock"]) });
+    const feedback = assembler.assemble({
+      rubric: LLD_RUBRIC,
+      rendered,
+      rules,
+      judge: report("ai", 3, ["under a lock"]),
+    });
     expect(feedback.mode).toBe("full");
     expect(feedback.criteria.every((c) => c.source === "ai" && c.band === 3)).toBe(true);
     expect(feedback.findings).toHaveLength(1);
@@ -56,13 +74,23 @@ describe("FeedbackAssembler", () => {
   it("lets a deterministic cap override an optimistic judge and says why", () => {
     const rules = report("rules", 2);
     rules.caps.push({ criterion: "extensibility", maxBand: 1, reason: "Change scenario not answered." });
-    const feedback = assembler.assemble({ rubric: LLD_RUBRIC, rendered, rules, judge: report("ai", 4, ["under a lock"]) });
+    const feedback = assembler.assemble({
+      rubric: LLD_RUBRIC,
+      rendered,
+      rules,
+      judge: report("ai", 4, ["under a lock"]),
+    });
     const ext = feedback.criteria.find((c) => c.criterion === "extensibility")!;
     expect(ext).toMatchObject({ band: 1, cappedFrom: 4, capReason: "Change scenario not answered." });
   });
 
   it("drops confidence when a high band cites nothing that is really in the submission", () => {
-    const feedback = assembler.assemble({ rubric: LLD_RUBRIC, rendered, rules: report("rules", 2), judge: report("ai", 4, ["an invented quote"]) });
+    const feedback = assembler.assemble({
+      rubric: LLD_RUBRIC,
+      rendered,
+      rules: report("rules", 2),
+      judge: report("ai", 4, ["an invented quote"]),
+    });
     expect(feedback.criteria[0]).toMatchObject({ band: 4, confidence: "low" });
     expect(feedback.criteria[0]!.evidence[0]!.verified).toBe(false);
   });
@@ -76,9 +104,19 @@ describe("FeedbackAssembler", () => {
 
   it("produces complete rules-only feedback with the reason when there is no judge", () => {
     const rules = report("rules", 2);
-    rules.findings.push({ code: "NO_FAILURE_CASES", criterion: "behaviour", severity: "minor", message: "m", suggestion: "Add a failure case." });
+    rules.findings.push({
+      code: "NO_FAILURE_CASES",
+      criterion: "behaviour",
+      severity: "minor",
+      message: "m",
+      suggestion: "Add a failure case.",
+    });
     const feedback = assembler.assemble({ rubric: LLD_RUBRIC, rendered, rules, degradedReason: "Budget used up." });
-    expect(feedback).toMatchObject({ mode: "rules_only", degradedReason: "Budget used up.", nextSteps: ["Add a failure case."] });
+    expect(feedback).toMatchObject({
+      mode: "rules_only",
+      degradedReason: "Budget used up.",
+      nextSteps: ["Add a failure case."],
+    });
     expect(feedback.criteria).toHaveLength(LLD_RUBRIC.criteria.length);
   });
 });

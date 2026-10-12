@@ -92,7 +92,11 @@ export class PracticeService {
       model: format.toModel(parsed.value),
       rubric: this.deps.rubric,
     });
-    return { readiness: format.submissionIssues(parsed.value), findings: report.findings, coverage: report.coverage ?? [] };
+    return {
+      readiness: format.submissionIssues(parsed.value),
+      findings: report.findings,
+      coverage: report.coverage ?? [],
+    };
   }
 
   /**

@@ -5,14 +5,7 @@
 export const ELEMENT_KINDS = ["class", "abstract", "interface", "enum"] as const;
 export type ElementKind = (typeof ELEMENT_KINDS)[number];
 
-export const RELATION_TYPES = [
-  "inherits",
-  "implements",
-  "composes",
-  "aggregates",
-  "associates",
-  "depends",
-] as const;
+export const RELATION_TYPES = ["inherits", "implements", "composes", "aggregates", "associates", "depends"] as const;
 export type RelationType = (typeof RELATION_TYPES)[number];
 
 export interface DesignElement {

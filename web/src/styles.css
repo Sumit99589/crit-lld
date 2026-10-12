@@ -1,0 +1,156 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0a0c10;
+  --color-panel: #11141a;
+  --color-raised: #171b23;
+  --color-line: rgb(255 255 255 / 0.08);
+  --color-line-strong: rgb(255 255 255 / 0.14);
+  --color-fg: #eef1f5;
+  --color-muted: #8b93a1;
+  --color-faint: #5d6574;
+  --color-redline: #ff5a36;
+  --color-redline-soft: rgb(255 90 54 / 0.14);
+  --color-amber: #e9b44c;
+  --color-ok: #7fd1ae;
+
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  background: var(--color-ink);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--color-ink);
+}
+
+::selection {
+  background: var(--color-redline-soft);
+  color: var(--color-fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-redline);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Film grain over everything: cheap depth on a dark page. */
+.grain {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Drafting grid that fades out from the top of the page. */
+.blueprint {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 30% 0%, #000 40%, transparent 100%);
+}
+
+/* A redline mark that draws itself under quoted evidence. */
+.redline {
+  background-image: linear-gradient(var(--color-redline), var(--color-redline));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 2px;
+  transition:
+    background-size 700ms var(--ease-out-quint),
+    background-color 300ms;
+  padding-bottom: 1px;
+}
+.redline[data-drawn="true"] {
+  background-size: 100% 2px;
+}
+.redline[data-active="true"] {
+  background-color: var(--color-redline-soft);
+}
+
+/* Light that travels around the border of the active step. */
+@property --beam-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.beam {
+  position: relative;
+}
+.beam::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--beam-angle), transparent 65%, var(--color-redline) 85%, transparent 100%);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: beam-spin 2.6s linear infinite;
+}
+@keyframes beam-spin {
+  to {
+    --beam-angle: 360deg;
+  }
+}
+
+.field {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--color-line);
+  background: rgb(255 255 255 / 0.025);
+  padding: 0.6rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--color-fg);
+  transition:
+    border-color 200ms,
+    background 200ms;
+}
+.field::placeholder {
+  color: var(--color-faint);
+}
+.field:hover {
+  border-color: var(--color-line-strong);
+}
+.field:focus {
+  outline: none;
+  border-color: rgb(255 90 54 / 0.55);
+  background: rgb(255 255 255 / 0.04);
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 0.12) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beam::before {
+    animation: none;
+  }
+  .redline {
+    transition: none;
+  }
+}

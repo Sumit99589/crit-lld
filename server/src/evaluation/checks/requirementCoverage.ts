@@ -28,7 +28,8 @@ export class RequirementCoverageCheck implements DesignCheck {
         code: "REQ_MAP_EMPTY",
         criterion: "requirements",
         severity: "major",
-        message: "No requirement is mapped to a class yet, so there is no way to tell which part of the design satisfies what.",
+        message:
+          "No requirement is mapped to a class yet, so there is no way to tell which part of the design satisfies what.",
         suggestion: "Fill in the requirement map: for each requirement, pick the classes that make it happen.",
       });
       caps.push({ criterion: "requirements", maxBand: 2, reason: "No requirement is mapped to the design." });
@@ -45,9 +46,17 @@ export class RequirementCoverageCheck implements DesignCheck {
       }
       const ratio = total === 0 ? 1 : (total - uncovered.length) / total;
       if (ratio < 0.6) {
-        caps.push({ criterion: "requirements", maxBand: 2, reason: `Only ${total - uncovered.length} of ${total} requirements are mapped.` });
+        caps.push({
+          criterion: "requirements",
+          maxBand: 2,
+          reason: `Only ${total - uncovered.length} of ${total} requirements are mapped.`,
+        });
       } else if (uncovered.length > 0) {
-        caps.push({ criterion: "requirements", maxBand: 3, reason: `${uncovered.length} requirement(s) are not mapped to any class.` });
+        caps.push({
+          criterion: "requirements",
+          maxBand: 3,
+          reason: `${uncovered.length} requirement(s) are not mapped to any class.`,
+        });
       }
     }
 

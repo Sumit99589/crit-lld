@@ -90,7 +90,9 @@ export class ProgressService {
     const completed = this.completedFeedback(learnerId, history);
 
     const trends = this.deps.rubric.criteria.map((c) => {
-      const series = completed.map(({ feedback }) => feedback.criteria.find((a) => a.criterion === c.id)?.band).filter(isBand);
+      const series = completed
+        .map(({ feedback }) => feedback.criteria.find((a) => a.criterion === c.id)?.band)
+        .filter(isBand);
       return { criterion: c.id, name: c.name, latest: series.at(-1) ?? null, series: series.slice(-8) };
     });
 
@@ -145,7 +147,12 @@ export class ProgressService {
   }
 }
 
-function summarise(submissionId: string, revision: number, submittedAt: Date, evaluation: Evaluation | undefined): RevisionSummary {
+function summarise(
+  submissionId: string,
+  revision: number,
+  submittedAt: Date,
+  evaluation: Evaluation | undefined,
+): RevisionSummary {
   const feedback = evaluation?.feedback ?? null;
   return {
     submissionId,

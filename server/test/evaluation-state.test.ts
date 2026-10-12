@@ -7,7 +7,16 @@ const now = new Date("2026-10-12T10:00:00Z");
 const later = (ms: number) => new Date(now.getTime() + ms);
 
 function feedback(mode: Feedback["mode"]): Feedback {
-  return { rubricVersion: "x", mode, headline: "", strengths: [], nextSteps: [], criteria: [], findings: [], coverage: [] };
+  return {
+    rubricVersion: "x",
+    mode,
+    headline: "",
+    strengths: [],
+    nextSteps: [],
+    criteria: [],
+    findings: [],
+    coverage: [],
+  };
 }
 
 describe("Evaluation lifecycle", () => {

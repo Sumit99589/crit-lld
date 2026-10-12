@@ -43,7 +43,10 @@ describe("evaluation flow", () => {
   it("works with AI switched off entirely", async () => {
     const h = harness({ llm: null });
     const { evaluation } = await submitAndSettle(h);
-    expect(evaluation.feedback).toMatchObject({ mode: "rules_only", degradedReason: expect.stringContaining("isn't configured") });
+    expect(evaluation.feedback).toMatchObject({
+      mode: "rules_only",
+      degradedReason: expect.stringContaining("isn't configured"),
+    });
   });
 
   it("degrades instead of failing when the model returns nothing usable", async () => {
@@ -69,7 +72,10 @@ describe("evaluation flow", () => {
     changed.assumptions += " Vans never use compact spots.";
     const second = await submitAndSettle(h, changed);
     expect(llm.calls).toHaveLength(1);
-    expect(second.evaluation.feedback).toMatchObject({ mode: "rules_only", degradedReason: expect.stringContaining("this hour") });
+    expect(second.evaluation.feedback).toMatchObject({
+      mode: "rules_only",
+      degradedReason: expect.stringContaining("this hour"),
+    });
   });
 
   it("compares a revision with the one before it", async () => {
@@ -91,7 +97,9 @@ describe("evaluation flow", () => {
     const attempt = h.container.practice.startAttempt(LEARNER, "parking-lot");
     const { submission } = h.container.practice.submit(LEARNER, attempt.id, parkingCanvas());
     // Corrupt the stored design so every evaluation attempt throws.
-    h.db.prepare("UPDATE submissions SET content = ? WHERE id = ?").run(JSON.stringify({ entities: "nope" }), submission.id);
+    h.db
+      .prepare("UPDATE submissions SET content = ? WHERE id = ?")
+      .run(JSON.stringify({ entities: "nope" }), submission.id);
 
     h.container.start();
     await waitFor(() => h.container.practice.getSubmission(LEARNER, submission.id).evaluation.status === "failed");

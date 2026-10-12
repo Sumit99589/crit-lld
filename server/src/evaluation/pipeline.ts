@@ -1,5 +1,10 @@
 import type { Feedback } from "../domain/feedback.js";
-import { EvaluatorUnavailableError, type EvaluationContext, type Evaluator, type EvaluatorReport } from "./evaluator.js";
+import {
+  EvaluatorUnavailableError,
+  type EvaluationContext,
+  type Evaluator,
+  type EvaluatorReport,
+} from "./evaluator.js";
 import type { FeedbackAssembler } from "./feedbackAssembler.js";
 
 export interface PipelineLogger {
@@ -29,7 +34,8 @@ export class EvaluationPipeline {
       try {
         judge = await this.judge.evaluate({ ...ctx, facts: rules });
       } catch (error) {
-        degradedReason = error instanceof EvaluatorUnavailableError ? error.message : "The AI review failed unexpectedly.";
+        degradedReason =
+          error instanceof EvaluatorUnavailableError ? error.message : "The AI review failed unexpectedly.";
         this.logger.warn("judge unavailable, falling back to rules", {
           reason: error instanceof EvaluatorUnavailableError ? error.reason : String(error),
         });

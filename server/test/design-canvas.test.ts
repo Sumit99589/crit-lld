@@ -27,7 +27,9 @@ describe("DesignCanvasFormat", () => {
     const canvas = format.empty();
     canvas.entities = [{ id: "a", name: "Lot", kind: "class", responsibility: "lot", attributes: "", methods: "" }];
     const paths = format.submissionIssues(canvas).map((i) => i.path);
-    expect(paths).toEqual(expect.arrayContaining(["entities.0.responsibility", "entities", "relationships", "keyFlow"]));
+    expect(paths).toEqual(
+      expect.arrayContaining(["entities.0.responsibility", "entities", "relationships", "keyFlow"]),
+    );
   });
 
   it("flags duplicate class names regardless of case", () => {

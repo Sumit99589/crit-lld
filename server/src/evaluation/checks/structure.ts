@@ -63,7 +63,10 @@ export class StructureCheck implements DesignCheck {
           severity: "minor",
           subject: `${r.from}->${r.to}`,
           message: `${r.from} "implements" ${r.to}, but ${r.to} is ${target.kind === "abstract" ? "an abstract class" : `a${target.kind === "enum" ? "n" : ""} ${target.kind}`}.`,
-          suggestion: target.kind === "abstract" ? `Use "inherits" for ${r.to}, or make it an interface.` : `Either make ${r.to} an interface or change the relationship type.`,
+          suggestion:
+            target.kind === "abstract"
+              ? `Use "inherits" for ${r.to}, or make it an interface.`
+              : `Either make ${r.to} an interface or change the relationship type.`,
         });
       }
       if (r.type === "inherits" && target.kind === "interface") {
@@ -117,7 +120,8 @@ export class StructureCheck implements DesignCheck {
         criterion: "abstraction",
         severity: "note",
         message: "The design has no interfaces or abstract classes.",
-        suggestion: "That can be fine, but look at the change scenario: whatever varies there is usually where an abstraction pays off.",
+        suggestion:
+          "That can be fine, but look at the change scenario: whatever varies there is usually where an abstraction pays off.",
       });
     }
 

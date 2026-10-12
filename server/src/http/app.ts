@@ -3,7 +3,13 @@ import { join, resolve } from "node:path";
 import express, { type NextFunction, type Request, type Response } from "express";
 import { z } from "zod";
 import type { Container } from "../container.js";
-import { ConcurrencyError, DomainError, InvalidTransitionError, NotFoundError, ValidationError } from "../domain/errors.js";
+import {
+  ConcurrencyError,
+  DomainError,
+  InvalidTransitionError,
+  NotFoundError,
+  ValidationError,
+} from "../domain/errors.js";
 import type { Logger } from "../infra/logger.js";
 import { attemptDto, evaluationDto, problemSummary, submissionDto } from "./presenters.js";
 
@@ -155,5 +161,10 @@ function parse<T>(schema: z.ZodType<T>, body: unknown): T {
 }
 
 function isBodyParserError(error: unknown): error is { status: number } {
-  return typeof error === "object" && error !== null && "type" in error && typeof (error as { status?: unknown }).status === "number";
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "type" in error &&
+    typeof (error as { status?: unknown }).status === "number"
+  );
 }

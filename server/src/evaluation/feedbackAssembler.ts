@@ -70,8 +70,12 @@ function applyCaps(a: CriterionAssessment, caps: BandCap[]): CriterionAssessment
 function rulesHeadline(findings: Finding[]): string {
   const majors = findings.filter((f) => f.severity === "major").length;
   const minors = findings.filter((f) => f.severity === "minor").length;
-  if (majors + minors === 0) return "No structural problems found. An AI review would judge the quality of your reasoning.";
-  const parts = [majors && `${majors} major issue${majors > 1 ? "s" : ""}`, minors && `${minors} smaller one${minors > 1 ? "s" : ""}`].filter(Boolean);
+  if (majors + minors === 0)
+    return "No structural problems found. An AI review would judge the quality of your reasoning.";
+  const parts = [
+    majors && `${majors} major issue${majors > 1 ? "s" : ""}`,
+    minors && `${minors} smaller one${minors > 1 ? "s" : ""}`,
+  ].filter(Boolean);
   return `Rule-based review found ${parts.join(" and ")} to look at.`;
 }
 

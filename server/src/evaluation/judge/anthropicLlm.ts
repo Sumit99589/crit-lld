@@ -37,8 +37,10 @@ export class AnthropicLlm implements StructuredLlm {
       throw toLlmError(error);
     }
 
-    if (response.stop_reason === "refusal") throw new LlmError("invalid_output", "The model declined to review this submission");
-    if (response.stop_reason === "max_tokens") throw new LlmError("invalid_output", "The review was cut off before it finished");
+    if (response.stop_reason === "refusal")
+      throw new LlmError("invalid_output", "The model declined to review this submission");
+    if (response.stop_reason === "max_tokens")
+      throw new LlmError("invalid_output", "The review was cut off before it finished");
     if (!response.parsed_output) throw new LlmError("invalid_output", "The review did not match the expected format");
 
     return {
@@ -54,11 +56,14 @@ function toLlmError(error: unknown): LlmError {
   if (error instanceof Anthropic.AuthenticationError || error instanceof Anthropic.PermissionDeniedError) {
     return new LlmError("auth", "The AI provider rejected our credentials");
   }
-  if (error instanceof Anthropic.RateLimitError) return new LlmError("rate_limited", "The AI provider is rate limiting us");
+  if (error instanceof Anthropic.RateLimitError)
+    return new LlmError("rate_limited", "The AI provider is rate limiting us");
   if (error instanceof Anthropic.APIConnectionTimeoutError) return new LlmError("timeout", "The AI review timed out");
   if (error instanceof Anthropic.APIUserAbortError) return new LlmError("timeout", "The AI review was cancelled");
-  if (error instanceof Anthropic.APIConnectionError) return new LlmError("provider_error", "Could not reach the AI provider");
-  if (error instanceof Anthropic.APIError) return new LlmError("provider_error", `AI provider error (${error.status ?? "unknown"})`);
+  if (error instanceof Anthropic.APIConnectionError)
+    return new LlmError("provider_error", "Could not reach the AI provider");
+  if (error instanceof Anthropic.APIError)
+    return new LlmError("provider_error", `AI provider error (${error.status ?? "unknown"})`);
   if (error instanceof SyntaxError) return new LlmError("invalid_output", "The review was not valid JSON");
   return new LlmError("provider_error", error instanceof Error ? error.message : "Unknown AI error");
 }

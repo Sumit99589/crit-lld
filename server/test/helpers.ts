@@ -2,7 +2,12 @@ import type { z } from "zod";
 import type { Config } from "../src/config.js";
 import { createContainer } from "../src/container.js";
 import { CRITERION_IDS } from "../src/domain/rubric.js";
-import { LlmError, type StructuredLlm, type StructuredRequest, type StructuredResponse } from "../src/evaluation/judge/llm.js";
+import {
+  LlmError,
+  type StructuredLlm,
+  type StructuredRequest,
+  type StructuredResponse,
+} from "../src/evaluation/judge/llm.js";
 import type { JudgeOutput } from "../src/evaluation/judge/prompt.js";
 import type { DesignCanvas } from "../src/formats/designCanvas.js";
 import { createApp } from "../src/http/app.js";
@@ -87,17 +92,81 @@ export function harness(
 /** A reasonable parking-lot design that should pass every readiness check. */
 export function parkingCanvas(): DesignCanvas {
   return {
-    assumptions: "One lot only. Motorcycles use compact spots, cars regular, vans large. Card payment either succeeds or the driver retries at the gate.",
+    assumptions:
+      "One lot only. Motorcycles use compact spots, cars regular, vans large. Card payment either succeeds or the driver retries at the gate.",
     entities: [
-      { id: "e1", name: "ParkingLot", kind: "class", responsibility: "Entry point for the gates: coordinates allocation, ticketing and exit.", attributes: "floors", methods: "parkVehicle(vehicle, gate): Ticket\nexit(ticket, payment): Receipt" },
-      { id: "e2", name: "Floor", kind: "class", responsibility: "Holds the spots on one level and reports free spots by size.", attributes: "number\nspots", methods: "findFreeSpot(size)\nfreeCount(size)" },
-      { id: "e3", name: "ParkingSpot", kind: "class", responsibility: "A single spot with a size; knows whether it is free and who occupies it.", attributes: "size\noccupant", methods: "occupy(vehicle)\nrelease()\nfits(vehicle)" },
-      { id: "e4", name: "Vehicle", kind: "abstract", responsibility: "A vehicle with a plate; its type decides which spot sizes fit.", attributes: "plate", methods: "allowedSizes()" },
-      { id: "e5", name: "Car", kind: "class", responsibility: "A regular car that fits regular or large spots.", attributes: "", methods: "allowedSizes()" },
-      { id: "e6", name: "Ticket", kind: "class", responsibility: "Records which vehicle parked in which spot and when it entered.", attributes: "entryTime\nspot\nvehicle", methods: "duration(now)" },
-      { id: "e7", name: "PricingPolicy", kind: "interface", responsibility: "Calculates the fee for a ticket at exit time.", attributes: "", methods: "feeFor(ticket, exitTime): Money" },
-      { id: "e8", name: "HourlyPricing", kind: "class", responsibility: "Charges an hourly rate per vehicle type, rounding partial hours up.", attributes: "rates", methods: "feeFor(ticket, exitTime): Money" },
-      { id: "e9", name: "SpotAllocator", kind: "class", responsibility: "Chooses a free suitable spot and reserves it atomically so two gates never get the same spot.", attributes: "", methods: "allocate(vehicle): ParkingSpot" },
+      {
+        id: "e1",
+        name: "ParkingLot",
+        kind: "class",
+        responsibility: "Entry point for the gates: coordinates allocation, ticketing and exit.",
+        attributes: "floors",
+        methods: "parkVehicle(vehicle, gate): Ticket\nexit(ticket, payment): Receipt",
+      },
+      {
+        id: "e2",
+        name: "Floor",
+        kind: "class",
+        responsibility: "Holds the spots on one level and reports free spots by size.",
+        attributes: "number\nspots",
+        methods: "findFreeSpot(size)\nfreeCount(size)",
+      },
+      {
+        id: "e3",
+        name: "ParkingSpot",
+        kind: "class",
+        responsibility: "A single spot with a size; knows whether it is free and who occupies it.",
+        attributes: "size\noccupant",
+        methods: "occupy(vehicle)\nrelease()\nfits(vehicle)",
+      },
+      {
+        id: "e4",
+        name: "Vehicle",
+        kind: "abstract",
+        responsibility: "A vehicle with a plate; its type decides which spot sizes fit.",
+        attributes: "plate",
+        methods: "allowedSizes()",
+      },
+      {
+        id: "e5",
+        name: "Car",
+        kind: "class",
+        responsibility: "A regular car that fits regular or large spots.",
+        attributes: "",
+        methods: "allowedSizes()",
+      },
+      {
+        id: "e6",
+        name: "Ticket",
+        kind: "class",
+        responsibility: "Records which vehicle parked in which spot and when it entered.",
+        attributes: "entryTime\nspot\nvehicle",
+        methods: "duration(now)",
+      },
+      {
+        id: "e7",
+        name: "PricingPolicy",
+        kind: "interface",
+        responsibility: "Calculates the fee for a ticket at exit time.",
+        attributes: "",
+        methods: "feeFor(ticket, exitTime): Money",
+      },
+      {
+        id: "e8",
+        name: "HourlyPricing",
+        kind: "class",
+        responsibility: "Charges an hourly rate per vehicle type, rounding partial hours up.",
+        attributes: "rates",
+        methods: "feeFor(ticket, exitTime): Money",
+      },
+      {
+        id: "e9",
+        name: "SpotAllocator",
+        kind: "class",
+        responsibility: "Chooses a free suitable spot and reserves it atomically so two gates never get the same spot.",
+        attributes: "",
+        methods: "allocate(vehicle): ParkingSpot",
+      },
     ],
     relationships: [
       { id: "r1", from: "e1", to: "e2", type: "composes", label: "" },

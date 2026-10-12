@@ -32,7 +32,10 @@ export interface SubmissionFormat<T = unknown> {
 export class FormatRegistry {
   private readonly formats = new Map<string, SubmissionFormat>();
 
-  constructor(formats: SubmissionFormat[], readonly defaultFormatId: string) {
+  constructor(
+    formats: SubmissionFormat[],
+    readonly defaultFormatId: string,
+  ) {
     for (const f of formats) this.formats.set(f.id, f);
     if (!this.formats.has(defaultFormatId)) throw new Error(`Unknown default format ${defaultFormatId}`);
   }

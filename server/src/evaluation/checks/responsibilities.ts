@@ -21,7 +21,8 @@ export class ResponsibilityCheck implements DesignCheck {
       const signals: string[] = [];
       if (e.methods.length >= GOD_METHOD_COUNT) signals.push(`${e.methods.length} methods`);
       if (clauseCount(e.responsibility) >= 3) signals.push("a responsibility that lists several jobs");
-      if (MANAGER_NAME.test(e.name.replace(/\s/g, "")) && e.methods.length >= 6) signals.push(`a catch-all name ("${e.name}")`);
+      if (MANAGER_NAME.test(e.name.replace(/\s/g, "")) && e.methods.length >= 6)
+        signals.push(`a catch-all name ("${e.name}")`);
 
       if (signals.length > 0) {
         findings.push({

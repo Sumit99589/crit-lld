@@ -39,7 +39,8 @@ export const LLD_RUBRIC: Rubric = {
     {
       id: "requirements",
       name: "Requirement coverage",
-      question: "Does the design account for every stated requirement, with sensible assumptions where the brief is vague?",
+      question:
+        "Does the design account for every stated requirement, with sensible assumptions where the brief is vague?",
       levels: {
         1: "Several requirements have no home in the design.",
         2: "Most requirements are mapped, but some are only nominally covered or assumptions are missing.",
@@ -61,7 +62,8 @@ export const LLD_RUBRIC: Rubric = {
     {
       id: "abstraction",
       name: "Abstraction & interfaces",
-      question: "Are interfaces and abstractions introduced where variation actually exists, and patterns used where they earn their place?",
+      question:
+        "Are interfaces and abstractions introduced where variation actually exists, and patterns used where they earn their place?",
       levels: {
         1: "No abstractions, or abstractions with no reason to exist.",
         2: "Some useful abstractions, but they are misplaced, leaky, or patterns are named without justification.",
@@ -72,7 +74,8 @@ export const LLD_RUBRIC: Rubric = {
     {
       id: "relationships",
       name: "Relationships & coupling",
-      question: "Are relationships the right kind (composition vs association vs inheritance) and is coupling kept low?",
+      question:
+        "Are relationships the right kind (composition vs association vs inheritance) and is coupling kept low?",
       levels: {
         1: "Relationships are missing, contradictory, or everything depends on everything.",
         2: "Relationships exist but some are the wrong kind, or a few classes are coupled to too much.",
@@ -83,7 +86,8 @@ export const LLD_RUBRIC: Rubric = {
     {
       id: "extensibility",
       name: "Extensibility under change",
-      question: "When the requirement change arrives, how much of the design has to change, and is that cost explained?",
+      question:
+        "When the requirement change arrives, how much of the design has to change, and is that cost explained?",
       levels: {
         1: "The change is not addressed, or would require rewriting core classes.",
         2: "The change is addressed but would ripple through several existing classes.",

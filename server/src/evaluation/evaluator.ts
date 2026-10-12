@@ -1,11 +1,5 @@
 import type { DesignModel } from "../domain/design.js";
-import type {
-  BandCap,
-  CriterionAssessment,
-  Finding,
-  JudgeUsage,
-  RequirementCoverage,
-} from "../domain/feedback.js";
+import type { BandCap, CriterionAssessment, Finding, JudgeUsage, RequirementCoverage } from "../domain/feedback.js";
 import type { Problem } from "../domain/problem.js";
 import type { Rubric } from "../domain/rubric.js";
 
@@ -43,12 +37,7 @@ export interface Evaluator {
 }
 
 export type UnavailableReason =
-  | "not_configured"
-  | "budget_exhausted"
-  | "rate_limited"
-  | "timeout"
-  | "provider_error"
-  | "invalid_output";
+  "not_configured" | "budget_exhausted" | "rate_limited" | "timeout" | "provider_error" | "invalid_output";
 
 /** Thrown by optional evaluators when they cannot produce a result right now. */
 export class EvaluatorUnavailableError extends Error {

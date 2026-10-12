@@ -24,7 +24,16 @@ export class SqliteAttemptRepository implements AttemptRepository {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
          ON CONFLICT (id) DO UPDATE SET draft = excluded.draft, revision_count = excluded.revision_count, updated_at = excluded.updated_at`,
       )
-      .run(s.id, s.learnerId, s.problemSlug, s.formatId, JSON.stringify(s.draft), s.revisionCount, s.createdAt.toISOString(), s.updatedAt.toISOString());
+      .run(
+        s.id,
+        s.learnerId,
+        s.problemSlug,
+        s.formatId,
+        JSON.stringify(s.draft),
+        s.revisionCount,
+        s.createdAt.toISOString(),
+        s.updatedAt.toISOString(),
+      );
   }
 
   find(id: string): Attempt | undefined {
@@ -33,7 +42,9 @@ export class SqliteAttemptRepository implements AttemptRepository {
   }
 
   listByLearner(learnerId: string): Attempt[] {
-    const rows = this.db.prepare("SELECT * FROM attempts WHERE learner_id = ? ORDER BY updated_at DESC").all(learnerId) as Row[];
+    const rows = this.db
+      .prepare("SELECT * FROM attempts WHERE learner_id = ? ORDER BY updated_at DESC")
+      .all(learnerId) as Row[];
     return rows.map(toAttempt);
   }
 }
@@ -60,7 +71,18 @@ export class SqliteSubmissionRepository implements SubmissionRepository {
         `INSERT INTO submissions (id, attempt_id, learner_id, problem_slug, revision, format_id, content, content_hash, idempotency_key, created_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
-      .run(s.id, s.attemptId, s.learnerId, s.problemSlug, s.revision, s.formatId, JSON.stringify(s.content), s.contentHash, s.idempotencyKey, s.createdAt.toISOString());
+      .run(
+        s.id,
+        s.attemptId,
+        s.learnerId,
+        s.problemSlug,
+        s.revision,
+        s.formatId,
+        JSON.stringify(s.content),
+        s.contentHash,
+        s.idempotencyKey,
+        s.createdAt.toISOString(),
+      );
   }
 
   find(id: string): Submission | undefined {
@@ -164,7 +186,8 @@ export class SqliteEvaluationRepository implements EvaluationRepository {
   }
 
   findBySubmission(submissionId: string): Evaluation | undefined {
-    const row = this.db.prepare("SELECT * FROM evaluations WHERE submission_id = ?").get(submissionId) as Row | undefined;
+    const row = this.db.prepare("SELECT * FROM evaluations WHERE submission_id = ?").get(submissionId) as
+      Row | undefined;
     return row && toEvaluation(row);
   }
 
@@ -177,7 +200,9 @@ export class SqliteEvaluationRepository implements EvaluationRepository {
   }
 
   listUnfinished(): Evaluation[] {
-    const rows = this.db.prepare("SELECT * FROM evaluations WHERE status IN ('queued', 'running') ORDER BY created_at").all() as Row[];
+    const rows = this.db
+      .prepare("SELECT * FROM evaluations WHERE status IN ('queued', 'running') ORDER BY created_at")
+      .all() as Row[];
     return rows.map(toEvaluation);
   }
 }
@@ -209,7 +234,9 @@ export class SqliteUsageLedger implements UsageLedger {
 
   countSince(since: Date, learnerId?: string): number {
     const row = learnerId
-      ? this.db.prepare("SELECT COUNT(*) AS n FROM llm_usage WHERE at >= ? AND learner_id = ?").get(since.toISOString(), learnerId)
+      ? this.db
+          .prepare("SELECT COUNT(*) AS n FROM llm_usage WHERE at >= ? AND learner_id = ?")
+          .get(since.toISOString(), learnerId)
       : this.db.prepare("SELECT COUNT(*) AS n FROM llm_usage WHERE at >= ?").get(since.toISOString());
     return Number((row as Row).n);
   }

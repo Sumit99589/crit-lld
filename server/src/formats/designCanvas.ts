@@ -78,13 +78,19 @@ export class DesignCanvasFormat implements SubmissionFormat<DesignCanvas> {
         return;
       }
       if (!NAME_PATTERN.test(e.name)) {
-        issues.push({ path: `${path}.name`, message: `"${e.name}" should start with a letter and use letters, digits or spaces.` });
+        issues.push({
+          path: `${path}.name`,
+          message: `"${e.name}" should start with a letter and use letters, digits or spaces.`,
+        });
       }
       const key = e.name.toLowerCase();
       if (seen.has(key)) issues.push({ path: `${path}.name`, message: `"${e.name}" is defined twice.` });
       seen.add(key);
       if (e.responsibility.trim().length < MIN_RESPONSIBILITY) {
-        issues.push({ path: `${path}.responsibility`, message: `Say what ${e.name} is responsible for, in a sentence.` });
+        issues.push({
+          path: `${path}.responsibility`,
+          message: `Say what ${e.name} is responsible for, in a sentence.`,
+        });
       }
     });
 
@@ -98,7 +104,10 @@ export class DesignCanvasFormat implements SubmissionFormat<DesignCanvas> {
     }
     canvas.relationships.forEach((r, i) => {
       if (!ids.has(r.from) || !ids.has(r.to)) {
-        issues.push({ path: `relationships.${i}`, message: "This relationship points at a class that no longer exists." });
+        issues.push({
+          path: `relationships.${i}`,
+          message: "This relationship points at a class that no longer exists.",
+        });
       }
     });
 

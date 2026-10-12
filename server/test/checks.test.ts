@@ -75,7 +75,9 @@ describe("CoreConceptCheck", () => {
       }
     });
     const findings = new CoreConceptCheck().run({ problem, model }).findings;
-    expect(findings).toEqual([expect.objectContaining({ code: "CONCEPT_NOT_FOUND", subject: "Ticket", severity: "note" })]);
+    expect(findings).toEqual([
+      expect.objectContaining({ code: "CONCEPT_NOT_FOUND", subject: "Ticket", severity: "note" }),
+    ]);
   });
 
   it("accepts aliases and different spacing", () => {
@@ -104,8 +106,20 @@ describe("ResponsibilityCheck", () => {
 
   it("notes vague responsibilities and data-only classes", () => {
     const model = modelWith((m) => {
-      m.elements.push({ name: "Helper", kind: "class", responsibility: "Handles stuff", attributes: [], methods: ["x()"] });
-      m.elements.push({ name: "Address", kind: "class", responsibility: "Postal address of the mall operator.", attributes: ["street", "city"], methods: [] });
+      m.elements.push({
+        name: "Helper",
+        kind: "class",
+        responsibility: "Handles stuff",
+        attributes: [],
+        methods: ["x()"],
+      });
+      m.elements.push({
+        name: "Address",
+        kind: "class",
+        responsibility: "Postal address of the mall operator.",
+        attributes: ["street", "city"],
+        methods: [],
+      });
     });
     const found = codes(new ResponsibilityCheck().run({ problem, model }).findings);
     expect(found).toEqual(expect.arrayContaining(["VAGUE_RESPONSIBILITY", "DATA_ONLY_CLASS"]));
@@ -117,8 +131,20 @@ describe("StructureCheck", () => {
 
   it("finds unconnected classes and abstractions nobody implements", () => {
     const model = modelWith((m) => {
-      m.elements.push({ name: "DisplayBoard", kind: "class", responsibility: "Shows free spot counts at the entry.", attributes: [], methods: ["refresh()"] });
-      m.elements.push({ name: "PaymentMethod", kind: "interface", responsibility: "Takes a payment for an amount.", attributes: [], methods: ["pay(amount)"] });
+      m.elements.push({
+        name: "DisplayBoard",
+        kind: "class",
+        responsibility: "Shows free spot counts at the entry.",
+        attributes: [],
+        methods: ["refresh()"],
+      });
+      m.elements.push({
+        name: "PaymentMethod",
+        kind: "interface",
+        responsibility: "Takes a payment for an amount.",
+        attributes: [],
+        methods: ["pay(amount)"],
+      });
     });
     const result = check.run({ problem, model });
     expect(result.findings).toEqual(
@@ -130,7 +156,9 @@ describe("StructureCheck", () => {
   });
 
   it("detects a composition cycle and caps relationships", () => {
-    const model = modelWith((m) => m.relations.push({ from: "ParkingSpot", to: "ParkingLot", type: "composes", label: "" }));
+    const model = modelWith((m) =>
+      m.relations.push({ from: "ParkingSpot", to: "ParkingLot", type: "composes", label: "" }),
+    );
     const result = check.run({ problem, model });
     expect(codes(result.findings)).toContain("COMPOSITION_CYCLE");
     expect(result.caps).toEqual([expect.objectContaining({ criterion: "relationships", maxBand: 2 })]);
@@ -153,7 +181,9 @@ describe("NarrativeCheck", () => {
   it("caps extensibility hard when the change scenario is ignored", () => {
     const result = check.run({ problem, model: modelWith((m) => (m.narrative.changeResponse = "")) });
     expect(codes(result.findings)).toContain("CHANGE_NOT_ADDRESSED");
-    expect(result.caps).toEqual(expect.arrayContaining([expect.objectContaining({ criterion: "extensibility", maxBand: 1 })]));
+    expect(result.caps).toEqual(
+      expect.arrayContaining([expect.objectContaining({ criterion: "extensibility", maxBand: 1 })]),
+    );
   });
 
   it("asks for failure cases when none are mentioned", () => {
@@ -164,11 +194,16 @@ describe("NarrativeCheck", () => {
     });
     const result = check.run({ problem, model });
     expect(codes(result.findings)).toContain("NO_FAILURE_CASES");
-    expect(result.caps).toEqual(expect.arrayContaining([expect.objectContaining({ criterion: "behaviour", maxBand: 2 })]));
+    expect(result.caps).toEqual(
+      expect.arrayContaining([expect.objectContaining({ criterion: "behaviour", maxBand: 2 })]),
+    );
   });
 
   it("notes patterns named without a reason, but not the plain word 'state'", () => {
-    const model = modelWith((m) => (m.narrative.decisions = "We use Observer for the display board. The spot state is stored on ParkingSpot."));
+    const model = modelWith(
+      (m) =>
+        (m.narrative.decisions = "We use Observer for the display board. The spot state is stored on ParkingSpot."),
+    );
     const findings = check.run({ problem, model }).findings.filter((f) => f.code === "PATTERN_UNJUSTIFIED");
     expect(findings.map((f) => f.subject)).toEqual(["observer"]);
   });
