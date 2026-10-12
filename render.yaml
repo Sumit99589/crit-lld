@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: crit-lld
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/health
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: LLM_DAILY_CALLS
+        value: "150"
+      - key: LLM_PER_LEARNER_HOURLY
+        value: "8"
+    disk:
+      name: crit-data
+      mountPath: /data
+      sizeGB: 1

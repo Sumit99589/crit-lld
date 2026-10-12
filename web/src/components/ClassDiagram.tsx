@@ -161,31 +161,6 @@ export function ClassDiagram({
       role="img"
       aria-label={`Class diagram with ${nodes.length} classes and ${paths.length} relationships`}
     >
-      {paths.map(({ rel, d, labelAt }) => {
-        const s = edgeStyle(rel.type);
-        return (
-          <g key={rel.id}>
-            <motion.path
-              d={d}
-              fill="none"
-              stroke={STROKE}
-              strokeWidth={1.2}
-              strokeDasharray={s.dash}
-              markerEnd={s.end}
-              markerStart={s.start}
-              initial={reduce ? false : { pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: 1 }}
-              transition={{ duration: 0.6, ease: EASE }}
-            />
-            {labelAt && (
-              <text x={labelAt.x + 6} y={labelAt.y - 4} className="fill-muted font-mono" fontSize={9.5}>
-                {rel.label}
-              </text>
-            )}
-          </g>
-        );
-      })}
-
       {nodes.map((n) => {
         const { entity } = n;
         const stereotype = entity.kind === "class" ? null : `«${entity.kind}»`;
@@ -244,6 +219,33 @@ export function ClassDiagram({
           </motion.g>
         );
       })}
+
+      {/* Edges on top so markers at the owning end are never hidden under a box. */}
+      {paths.map(({ rel, d, labelAt }) => {
+        const s = edgeStyle(rel.type);
+        return (
+          <g key={rel.id}>
+            <motion.path
+              d={d}
+              fill="none"
+              stroke={STROKE}
+              strokeWidth={1.2}
+              strokeDasharray={s.dash}
+              markerEnd={s.end}
+              markerStart={s.start}
+              initial={reduce ? false : { pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{ duration: 0.6, ease: EASE }}
+            />
+            {labelAt && (
+              <text x={labelAt.x + 6} y={labelAt.y - 4} className="fill-muted font-mono" fontSize={9.5}>
+                {rel.label}
+              </text>
+            )}
+          </g>
+        );
+      })}
+
     </svg>
   );
 }
@@ -282,7 +284,7 @@ export function DiagramMarkers() {
           refY="5"
           markerWidth="14"
           markerHeight="9"
-          orient="auto-start-reverse"
+          orient="auto"
         >
           <path d="M1,5 L8,1 L15,5 L8,9 Z" fill="#11141a" stroke={STROKE} />
         </marker>
@@ -293,7 +295,7 @@ export function DiagramMarkers() {
           refY="5"
           markerWidth="14"
           markerHeight="9"
-          orient="auto-start-reverse"
+          orient="auto"
         >
           <path d="M1,5 L8,1 L15,5 L8,9 Z" fill="rgba(238,241,245,0.75)" stroke={STROKE} />
         </marker>
