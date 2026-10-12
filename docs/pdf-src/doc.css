@@ -1,0 +1,29 @@
+@page { size: A4; margin: 15mm 16mm 14mm; }
+* { box-sizing: border-box; }
+html { font-family: "Inter", system-ui, sans-serif; font-size: 9.3pt; line-height: 1.48; color: #14161c; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-feature-settings: "cv11","ss01"; }
+body { margin: 0; }
+header.doc { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1.5px solid #14161c; padding-bottom: 7pt; margin-bottom: 11pt; }
+header.doc .brand { display: flex; align-items: center; gap: 7pt; }
+header.doc h1 { font-size: 17pt; letter-spacing: -0.03em; margin: 0; font-weight: 700; line-height: 1.15; }
+header.doc .meta { white-space: nowrap; font-size: 8pt; color: #5b616d; text-align: right; line-height: 1.4; }
+h2 { font-size: 11pt; letter-spacing: -0.02em; margin: 13pt 0 5pt; font-weight: 700; display: flex; align-items: center; gap: 6pt; }
+h2::before { content: ""; width: 7pt; height: 2.2pt; background: #dc4a26; border-radius: 2pt; }
+h3 { font-size: 9.5pt; margin: 9pt 0 3pt; font-weight: 650; }
+p { margin: 0 0 6pt; }
+ul, ol { margin: 0 0 6pt; padding-left: 13pt; }
+li { margin: 0 0 2.5pt; }
+a { color: #14161c; text-decoration: underline; text-decoration-color: #dc4a26; text-underline-offset: 1.5pt; }
+code, .mono { font-family: "JetBrains Mono", monospace; font-size: 8pt; }
+code { background: #efeee9; padding: 0.5pt 3pt; border-radius: 3pt; }
+table { width: 100%; border-collapse: collapse; font-size: 7.9pt; line-height: 1.38; margin: 3pt 0 6pt; }
+th { text-align: left; font-weight: 650; background: #14161c; color: #fff; padding: 4pt 5pt; }
+td { padding: 4pt 5pt; border-bottom: 0.6pt solid #dddcd6; vertical-align: top; }
+tr:nth-child(even) td { background: #f7f6f2; }
+td:first-child { font-weight: 600; }
+.callout { border-left: 2.5pt solid #dc4a26; background: #fbf1ed; padding: 6pt 9pt; margin: 6pt 0 8pt; border-radius: 0 4pt 4pt 0; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12pt; }
+.small { font-size: 8pt; color: #5b616d; }
+.diagram { border: 0.6pt solid #dddcd6; border-radius: 6pt; padding: 8pt; margin: 4pt 0 8pt; text-align: center; break-inside: avoid; }
+.diagram svg { max-width: 100%; height: auto; }
+pre.flow { font-family: "JetBrains Mono", monospace; font-size: 7.6pt; line-height: 1.35; background: #f7f6f2; border: 0.6pt solid #dddcd6; border-radius: 5pt; padding: 7pt 9pt; margin: 3pt 0 8pt; white-space: pre; }
+.avoid { break-inside: avoid; }

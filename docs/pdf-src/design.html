@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>crit · Design note</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet">
+<link rel="stylesheet" href="doc.css">
+<style>
+  .mermaid { font-family: "Inter", sans-serif; }
+  .twocol li { margin-bottom: 2pt; }
+  .page-break { break-before: page; }
+</style>
+</head>
+<body>
+<header class="doc">
+  <div class="brand">
+    <svg width="26" height="26" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#14161c"/><rect x="8" y="8.5" width="16" height="15" rx="2.5" fill="none" stroke="#fff" stroke-width="2"/><path d="M8 13.5h16" stroke="#fff" stroke-width="2"/><path d="M12.5 18.6l2.3 2.2 4.7-4.6" fill="none" stroke="#ff6a43" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h1>Design note: crit, an LLD practice platform</h1>
+  </div>
+  <div class="meta">crit-lld.onrender.com<br>github.com/Sumit99589/crit-lld</div>
+</header>
+
+<h2>1. The MVP</h2>
+<p>Four LLD problems (Parking Lot, Vending Machine, Expense Sharing, Elevator), each with numbered requirements, constraints and a <b>requirement change</b> the learner must absorb. The learner fills a <b>design canvas</b>, and a live UML diagram and live structural checks update as they type. On submit, the design is stored immediately and evaluated in the background. <b>Deterministic checks</b> run first, then a <b>low-cost LLM</b> (Claude Haiku 5.5) grades six rubric criteria and must quote the design as evidence. The platform verifies every quote, caps grades that contradict hard facts, and shows the evidence underlined in the learner's own text. Revising creates revision 2, whose feedback lists what was fixed, and a progress page shows criteria that keep coming up weak.</p>
+
+<h2>2. User flow</h2>
+<pre class="flow">Problems ─▶ Brief ─▶ Workspace (autosaved draft · live UML diagram · live pre-flight checks)
+                          │ submit (idempotent, HTTP 202)
+                          ▼
+              Feedback: queued → running → completed | failed
+              (rules-only feedback if AI is unavailable; "ask for AI review" later)
+                          │
+          ┌───────────────┴────────────────┐
+          ▼                                ▼
+   Revise → revision n+1             Progress: trends per criterion,
+   (diff against revision n)         focus areas, recurring mistakes</pre>
+
+<h2>3. What a learner provides, and why</h2>
+<table>
+  <thead><tr><th style="width:24%">Canvas section</th><th style="width:30%">Evidence of</th><th>Deterministic use</th></tr></thead>
+  <tbody>
+    <tr><td>Assumptions</td><td>Understanding, handling ambiguity</td><td>Present or absent</td></tr>
+    <tr><td>Classes (name, kind, responsibility, attributes, methods)</td><td>Responsibilities, cohesion, abstraction</td><td>God-class signals, vague or data-only classes, unimplemented interfaces</td></tr>
+    <tr><td>Relationships (6 typed kinds)</td><td>Coupling, correct relationship kinds</td><td>Orphans, ownership cycles, fan-out, “implements” on a class</td></tr>
+    <tr><td>Requirement map (FR → classes)</td><td>Coverage, traceability</td><td>Unmapped requirements, one class owning most requirements</td></tr>
+    <tr><td>Key flow</td><td>Behaviour, failure handling</td><td>Uses the declared classes? Mentions any failure?</td></tr>
+    <tr><td>Decisions</td><td>Trade-off reasoning</td><td>Patterns named without a reason</td></tr>
+    <tr><td>Response to change</td><td>Extensibility</td><td>Answered? Grounded in the learner's classes?</td></tr>
+  </tbody>
+</table>
+<p><b>Why a canvas, not code or a diagram?</b> Code proves more but needs a sandbox and per-language parsing. A diagram shows structure but not reasoning. The canvas is the smallest format that captures both <i>structure</i> (checkable by rules) and <i>reasoning</i> (judgeable by a reviewer), and it renders as a diagram for free. Submission requires only the minimum that makes review meaningful: 3 or more classes with a responsibility sentence, a relationship, and a key flow.</p>
+
+<h2>4. Architecture</h2>
+<p>A single Node/TypeScript monolith with SQLite, serving a React SPA. Dependencies point inward; <code>container.ts</code> is the only file that names concrete classes.</p>
+<pre class="flow">http/          Express routes, DTO presenters, error → status mapping
+application/   PracticeService · EvaluationWorker · ProgressService · ports (repository and queue interfaces)
+domain/        Attempt · Submission · Evaluation · Problem · Rubric · Feedback · DesignModel · SubmissionFormat
+evaluation/    Evaluator · RuleBasedEvaluator + DesignChecks · LlmJudgeEvaluator · FeedbackAssembler
+infra/         SQLite repositories (versioned writes) · InProcessQueue · logger</pre>
+
+<h2 class="page-break">5. Domain model</h2>
+<div class="diagram">
+<pre class="mermaid">
+classDiagram
+  direction LR
+  class Attempt {
+    draft
+    revisionCount
+    saveDraft()
+    nextRevision()
+  }
+  class Submission {
+    revision
+    content
+    contentHash
+    idempotencyKey
+  }
+  class Evaluation {
+    status
+    lease
+    version
+    start()
+    complete()
+    retryLater()
+  }
+  class Feedback {
+    mode
+    criteria
+    findings
+    comparison
+  }
+  class SubmissionFormat {
+    &lt;&lt;interface&gt;&gt;
+    parse()
+    toModel() DesignModel
+    render()
+  }
+  class DesignCanvasFormat
+  class Evaluator {
+    &lt;&lt;interface&gt;&gt;
+    evaluate(ctx) EvaluatorReport
+  }
+  class RuleBasedEvaluator
+  class LlmJudgeEvaluator
+  class CachingEvaluator
+  class DesignCheck {
+    &lt;&lt;interface&gt;&gt;
+    run(ctx)
+  }
+  class StructuredLlm {
+    &lt;&lt;interface&gt;&gt;
+    generate(schema)
+  }
+  class EvaluationPipeline {
+    run(ctx) Feedback
+  }
+  class FeedbackAssembler {
+    assemble()
+  }
+  Attempt "1" o-- "*" Submission : revisions
+  Submission "1" -- "1" Evaluation
+  Evaluation --> Feedback
+  SubmissionFormat <|.. DesignCanvasFormat
+  Evaluator <|.. RuleBasedEvaluator
+  Evaluator <|.. LlmJudgeEvaluator
+  Evaluator <|.. CachingEvaluator
+  CachingEvaluator o-- Evaluator : wraps
+  RuleBasedEvaluator o-- DesignCheck
+  LlmJudgeEvaluator --> StructuredLlm
+  EvaluationPipeline --> Evaluator
+  EvaluationPipeline --> FeedbackAssembler
+</pre>
+</div>
+<table>
+  <thead><tr><th style="width:20%">Class</th><th style="width:40%">Owns</th><th>Why it exists</th></tr></thead>
+  <tbody>
+    <tr><td>Attempt</td><td>Mutable draft, revision numbering, ownership</td><td>“Try again” is a new revision of the same attempt, so revisions can be compared</td></tr>
+    <tr><td>Submission</td><td>Immutable snapshot plus a content hash</td><td>Saved before evaluation, so work is never lost; the hash dedupes identical resubmits</td></tr>
+    <tr><td>Evaluation</td><td>State machine, tries, lease, version</td><td>Makes slow or failing evaluation explicit and safe to retry; illegal transitions throw</td></tr>
+    <tr><td>SubmissionFormat</td><td>Parse, readiness rules, → DesignModel, canonical text</td><td><b>Variation point for new submission formats</b></td></tr>
+    <tr><td>Evaluator</td><td>One way of judging a design</td><td><b>Variation point for new evaluators</b></td></tr>
+    <tr><td>DesignCheck</td><td>One deterministic rule</td><td>Small and testable; a new rule is one class</td></tr>
+    <tr><td>FeedbackAssembler</td><td>The merge policy</td><td>One place decides how rules and AI combine</td></tr>
+    <tr><td>CachingEvaluator, UsageBudget</td><td>Cache by input hash; daily, hourly and lifetime call caps</td><td>Keeps cost control out of the judge; a public demo can't run up a bill</td></tr>
+  </tbody>
+</table>
+<p class="small">Deliberately <b>not</b> added: a per-problem rubric (one rubric keeps results comparable), a User aggregate (an anonymous browser id is enough for an MVP), an event bus (a small <code>JobQueue</code> port is enough).</p>
+
+<h2>6. Evaluation approach</h2>
+<div class="grid2">
+  <div>
+    <h3>Deterministic (rules)</h3>
+    <ul>
+      <li>Submission readiness (blocking)</li>
+      <li>Requirement coverage from the learner's map</li>
+      <li>Ownership cycles, orphans, fan-out, wrong relationship kinds</li>
+      <li>God-class signals, vague or data-only classes</li>
+      <li>Change scenario answered and grounded</li>
+      <li>State transitions, idempotency, dedupe, budget</li>
+      <li>Verifying the AI's evidence quotes</li>
+      <li>Revision diff and recurring weaknesses</li>
+    </ul>
+  </div>
+  <div>
+    <h3>Judgement (LLM)</h3>
+    <ul>
+      <li>Quality of each responsibility split</li>
+      <li>Abstractions at real points of variation</li>
+      <li>Relationship kinds that fit the domain</li>
+      <li>Whether the change response actually holds</li>
+      <li>Trade-off reasoning, edge cases in the flow</li>
+      <li>Strengths and prioritised next steps</li>
+    </ul>
+  </div>
+</div>
+<h3>Making AI feedback consistent</h3>
+<ul>
+  <li><b>A fixed rubric:</b> six criteria × four described levels (Missing / Developing / Solid / Strong). There is no 100-point score.</li>
+  <li><b>Structured output</b> per criterion: <code>evidence → concern → band → suggestion → confidence</code>. The model quotes and states its concern <i>before</i> committing to a band.</li>
+  <li><b>Rule findings go in as verified facts</b> the model must not contradict. No reference solution is included; different decompositions are explicitly fine.</li>
+  <li><b>The submission is untrusted data</b>, so instructions inside it are ignored. The judge never sees its earlier verdicts (no anchoring), and revision diffs are computed in code.</li>
+</ul>
+<div class="callout"><b>Merge policy.</b> (1) The AI's assessment wins per criterion, and rules fill any gaps. (2) Every quote is checked against the submission; Solid-or-better grades with no verifiable quote drop to low confidence. (3) Deterministic caps override optimistic bands, with the reason shown. (4) Rule findings are always shown. Rules-only bands never exceed Solid.</div>
+<p><b>Cost:</b> one Haiku call per new design, measured at ~4k input and ~2k output tokens ≈ <b>$0.0015 per review</b>. Identical input is cached, and lifetime, daily and per-learner caps degrade to rules-only.</p>
+
+<h2>7. When evaluation is slow or fails</h2>
+<div class="diagram">
+<pre class="mermaid">
+stateDiagram-v2
+  direction LR
+  [*] --> queued: submit
+  queued --> running: claim + lease
+  running --> completed: feedback
+  running --> queued: crash / lease expired
+  running --> failed: 3 tries used
+  failed --> queued: learner retry
+  completed --> queued: ask for AI review
+</pre>
+</div>
+<ul>
+  <li><b>Never blocks:</b> submit stores the submission and enqueues it (202), and the UI polls. The submission and its evaluation are written in one transaction and enqueued only after commit.</li>
+  <li><b>No duplicates:</b> an <code>Idempotency-Key</code> per draft version, plus dedupe on content hash, both backed by unique indexes. Claiming a job is an optimistic <code>WHERE version = ?</code> update, so only one worker wins.</li>
+  <li><b>AI failure</b> (rate limit, timeout, refusal, bad JSON, no key, budget) completes as <code>rules_only</code> with the reason, immediately. Crashes retry with backoff 3 times, then end as <code>failed</code> with a retry button. On boot, <code>recover()</code> re-queues stale work.</li>
+</ul>
+
+<h2>8. The two change tests</h2>
+<p><b>A: class-diagram submissions.</b> Add <code>PlantUmlFormat implements SubmissionFormat</code> that produces the same <code>DesignModel</code>. Attempts, submissions, the worker, every check and the judge are unchanged; checks that need narrative simply find less. Only the UI needs a new editor.</p>
+<p><b>B: another evaluator or human review.</b> A synchronous evaluator is one more <code>Evaluator</code> in the pipeline, and the assembler already merges by criterion. Human review is asynchronous, so it becomes a second <code>Evaluation</code> row per submission with <code>kind = "human"</code>. The practice flow is untouched; the only schema change is evaluation 1:1 → 1:N by kind.</p>
+
+<h2>9. Scale, trade-offs and limits</h2>
+<ul>
+  <li><b>Split out the evaluation worker first.</b> It only needs the DB and a <code>JobQueue</code> port, and the lease plus versioned claim make several workers safe. Then move to Postgres and a real queue behind the same ports.</li>
+  <li><b>Limits:</b> anonymous browser identity, shallow English-centric heuristics (findings and caps only, never top grades), a judge not yet calibrated against a hand-graded set, polling instead of push, and a single node.</li>
+  <li><b>Tests:</b> 62 Vitest/Supertest tests cover the state machine, every check, quote verification, caps, revision diffs, worker failure modes (rate limit → rules-only → retry, crash → failed, lease recovery, concurrent claim, cache, budgets) and the HTTP API, with a fake LLM for determinism.</li>
+</ul>
+
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: "base",
+    themeVariables: {
+      fontFamily: "Inter, sans-serif",
+      fontSize: "13px",
+      primaryColor: "#ffffff",
+      primaryBorderColor: "#14161c",
+      primaryTextColor: "#14161c",
+      lineColor: "#5b616d",
+      secondaryColor: "#f7f6f2",
+      tertiaryColor: "#ffffff",
+    },
+  });
+  await document.fonts.ready;
+  await mermaid.run({ querySelector: ".mermaid" });
+  document.body.dataset.ready = "1";
+</script>
+</body>
+</html>

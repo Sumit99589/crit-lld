@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>crit · Research note</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet">
+<link rel="stylesheet" href="doc.css">
+</head>
+<body>
+<header class="doc">
+  <div class="brand">
+    <svg width="26" height="26" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#14161c"/><rect x="8" y="8.5" width="16" height="15" rx="2.5" fill="none" stroke="#fff" stroke-width="2"/><path d="M8 13.5h16" stroke="#fff" stroke-width="2"/><path d="M12.5 18.6l2.3 2.2 4.7-4.6" fill="none" stroke="#ff6a43" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h1>Research note: why LLD practice is hard to evaluate</h1>
+  </div>
+  <div class="meta">crit · LLD Practice Platform<br>github.com/Sumit99589/crit-lld</div>
+</header>
+
+<h2>The learner problem</h2>
+<p>Practising low-level design is easy to start: pick “Parking Lot”, sketch some classes, maybe write code. The hard part is knowing whether the result is any good.</p>
+<ol>
+  <li><b>There is no single right answer.</b> Two strong elevator designs can split responsibilities very differently. Comparing your design with one published solution can't tell “different” from “wrong”.</li>
+  <li><b>Feedback is either a reference solution or a score.</b> A reference shows <i>a</i> design, not what is weak about <i>yours</i>. “7/10” doesn't say which class to change.</li>
+  <li><b>Mistakes repeat silently.</b> The same god “Manager” class, missing failure handling, or empty abstraction shows up on every problem, and nothing tells the learner it's a pattern.</li>
+</ol>
+<div class="callout">
+  Learners say this themselves. A widely viewed LeetCode Discuss post is titled <i>“Parking Lot LLD | Is this approach enough for interviews? | Feedback appreciated”</i>
+  (<a href="https://leetcode.com/discuss/post/1775855/parking-lot-lld-is-this-approach-enough-m8qd0/">link</a>). On the most popular LLD repository, learners ask for test scenarios so they can check their own solutions
+  (<a href="https://github.com/ashishps1/awesome-low-level-design/issues/188">#188</a>) and say that without class diagrams “it's hard to understand the connectivity between the classes”
+  (<a href="https://github.com/ashishps1/awesome-low-level-design/issues/141">#141</a>).
+</div>
+
+<h2>What exists today</h2>
+<p class="small">Eight resources, each checked on its own pages in October 2026. Some product internals sit behind a login, as noted.</p>
+<table>
+  <thead><tr><th style="width:19%">Tool</th><th style="width:22%">How you practise</th><th style="width:15%">Submission</th><th style="width:26%">Feedback</th><th>Learning loop</th></tr></thead>
+  <tbody>
+    <tr><td><a href="https://algomaster.io/interview/low-level-design">AlgoMaster AI LLD interviews</a></td><td>Timed AI mock: requirements → entities → classes → code</td><td>Text or voice, then code</td><td>Each stage scored /10 by AI against “our reference solution”</td><td>Sessions saved; no weakness tracking; premium</td></tr>
+    <tr><td><a href="https://github.com/ashishps1/awesome-low-level-design">awesome-low-level-design</a> (27k★)</td><td>Read problem, read solution</td><td>None</td><td>Reference Java code</td><td>Manual checklist</td></tr>
+    <tr><td><a href="https://codemia.io/object-oriented-design">Codemia OOD</a></td><td>~70 problems with a structured text template</td><td>Template + diagram tool</td><td>“AI Design Review” advertised; public submissions</td><td>Streaks, flashcards</td></tr>
+    <tr><td><a href="https://www.hellointerview.com/learn/low-level-design">Hello Interview</a></td><td>Breakdowns; 8 guided practice problems</td><td>Step-by-step answers</td><td>“Instant AI feedback”; LLD rubric not published; human mocks ended May 2026</td><td>Per-question history</td></tr>
+    <tr><td>Educative “Grokking the LLD Interview”</td><td>Case studies with UML, code, 19 AI mocks</td><td>Mock answers</td><td>AI mock; grading not public</td><td>Unknown</td></tr>
+    <tr><td>DesignGurus “Grokking OOD”</td><td>Lessons, 250+ diagrams, quizzes</td><td>None</td><td>Reference solutions</td><td>Quiz scores</td></tr>
+    <tr><td>GeeksforGeeks articles</td><td>Read</td><td>None</td><td>None (comments)</td><td>None</td></tr>
+    <tr><td><a href="https://aet.cit.tum.de/research/publications/soelch2026icse.pdf">TUM Athena / Apollon</a> (ICSE-SEET 2026)</td><td>University modelling exercises</td><td>UML → text</td><td>LLM feedback against rubric-style instructions, reviewed by human graders</td><td>Course-level</td></tr>
+  </tbody>
+</table>
+
+<h2>Gaps</h2>
+<ol>
+  <li><b>Feedback is anchored to one canonical answer.</b> Even the AI-graded tool compares with a reference solution, so a valid but <i>different</i> design looks wrong.</li>
+  <li><b>Reference answers are unreliable.</b> The most popular repo has open correctness issues in its own solutions (#184: parking breaks un-parking; #73: logger “not thread safe as asked”).</li>
+  <li><b>AI feedback is opaque.</b> No LLD rubric is published, and scores aren't tied to specific classes. The TUM study found LLM grades are generous to weak work and harsh to strong work.</li>
+  <li><b>History is a log, not a coach.</b> Attempts are saved, but no tool I could verify surfaces recurring weaknesses across problems.</li>
+  <li><b>Requirement change is rarely tested</b>, even though extensibility is the point of LLD. Practice stops at the first design.</li>
+</ol>
+
+<h2>Product direction</h2>
+<p><b>crit</b> focuses on one loop: choose a problem → design → submit → get a crit → revise → see what you fixed.</p>
+<ul>
+  <li><b>A structured design canvas</b> instead of free text or code: assumptions, classes with one-sentence responsibilities, typed relationships, a requirement → class map, one key flow, decisions, and a response to a change. The structure enables deterministic checks, and the canvas draws a live UML diagram (answering #141).</li>
+  <li><b>Grading against a published rubric, not a reference solution:</b> six criteria with four described levels. Every judgement must quote the learner's own design, and the quotes are machine-checked.</li>
+  <li><b>Facts before opinions:</b> deterministic checks (unmapped requirements, ownership cycles, orphan classes, an unanswered change) run first and cap the AI where it disagrees, countering the generosity bias.</li>
+  <li><b>A requirement change in every problem</b>, so extensibility is actually exercised.</li>
+  <li><b>Revisions are diffed deterministically</b> (“fixed: unconnected DisplayBoard”), and recurring weaknesses are shown on a progress page.</li>
+  <li><b>It works without AI:</b> if the model is down or over budget, the learner still gets complete rule-based feedback.</li>
+</ul>
+<p class="small">Out of scope for the MVP: accounts, a problem editor, code execution, diagram input, and human review. The design leaves a place for each.</p>
+</body>
+</html>

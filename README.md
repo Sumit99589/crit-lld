@@ -2,8 +2,8 @@
 
 A small practice platform for low-level design (LLD). Pick a problem, lay out your classes and the reasoning behind them, and get feedback that is graded against a fixed rubric and **quotes your own design back to you**. Revise, and the next review tells you what you fixed.
 
-- **Live demo:** _add link after deploying_
-- **Docs:** [Research note](docs/RESEARCH.md) · [Design note](docs/DESIGN.md) · [AI usage](AI_USAGE.md)
+- **Live demo:** https://crit-lld.onrender.com (free instance: the first load after idle can take ~50 s)
+- **Docs:** Research note ([PDF](docs/Research-Note.pdf), [Markdown](docs/RESEARCH.md)) · Design note ([PDF](docs/Design-Note.pdf), [Markdown](docs/DESIGN.md)) · [AI usage](AI_USAGE.md)
 
 ![Home](docs/screenshots/home.png)
 
