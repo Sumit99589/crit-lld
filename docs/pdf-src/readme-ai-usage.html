@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>crit · README and AI usage</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=JetBrains+Mono:wght@400;500&display=block" rel="stylesheet">
+<link rel="stylesheet" href="doc.css">
+<style>
+  .page-break { break-before: page; }
+  .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 8pt; margin: 4pt 0 8pt; }
+  .shots figure { margin: 0; break-inside: avoid; }
+  .shots img { width: 100%; border: 0.6pt solid #dddcd6; border-radius: 5pt; display: block; }
+  .shots figcaption { font-size: 7.6pt; color: #5b616d; margin-top: 2pt; }
+  .decision { break-inside: avoid; margin-bottom: 8pt; }
+  .decision h3 { margin-top: 6pt; }
+  .tag { display: inline-block; font-size: 7.4pt; font-weight: 650; padding: 0.5pt 5pt; border-radius: 8pt; margin-right: 4pt; vertical-align: 1pt; }
+  .ai { background: #efeee9; color: #5b616d; }
+  .me { background: #14161c; color: #fff; }
+  .fix { background: #fbf1ed; color: #dc4a26; }
+</style>
+</head>
+<body>
+<header class="doc">
+  <div class="brand">
+    <svg width="26" height="26" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#14161c"/><rect x="8" y="8.5" width="16" height="15" rx="2.5" fill="none" stroke="#fff" stroke-width="2"/><path d="M8 13.5h16" stroke="#fff" stroke-width="2"/><path d="M12.5 18.6l2.3 2.2 4.7-4.6" fill="none" stroke="#ff6a43" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h1>crit: README and AI usage</h1>
+  </div>
+  <div class="meta">Live: crit-lld.onrender.com<br>Code: github.com/Sumit99589/crit-lld</div>
+</header>
+
+<p><b>crit</b> is a small practice platform for low-level design. Pick a problem, lay out your classes and the reasoning behind them, and get feedback graded against a fixed rubric that <b>quotes your own design back to you</b>. Revise, and the next review shows what you fixed.</p>
+
+<div class="shots">
+  <figure><img src="../screenshots/workspace.png" alt="Workspace"><figcaption>Workspace: canvas, live class diagram, live checks, resizable panes</figcaption></figure>
+  <figure><img src="feedback-top.png" alt="Feedback"><figcaption>Feedback: rubric profile, next steps, evidence underlined in your submission</figcaption></figure>
+</div>
+
+<h2>Run it</h2>
+<p>Requires <b>Node 22.13+</b>. SQLite comes from Node's built-in <code>node:sqlite</code>, so nothing native needs compiling.</p>
+<pre class="flow">git clone https://github.com/Sumit99589/crit-lld && cd crit-lld
+npm install
+cp .env.example .env      # optional: add ANTHROPIC_API_KEY for the AI review
+npm run build
+npm start                 # http://localhost:4000
+
+npm run dev               # development: API on :4000, Vite with hot reload on :5173
+npm test                  # 62 server tests
+npm run typecheck</pre>
+<p>Without an API key everything still works: each submission gets complete rule-based feedback, clearly labelled as such. A <code>Dockerfile</code> and a Render blueprint (<code>render.yaml</code>) are included for deployment.</p>
+
+<table>
+  <thead><tr><th style="width:27%">Variable</th><th style="width:20%">Default</th><th>Meaning</th></tr></thead>
+  <tbody>
+    <tr><td>ANTHROPIC_API_KEY</td><td>–</td><td>Turns on the AI review; without it the app runs rules-only</td></tr>
+    <tr><td>LLM_MODEL</td><td class="mono">claude-haiku-5-5</td><td>Model used for the rubric review</td></tr>
+    <tr><td>LLM_TOTAL_CALLS</td><td>unlimited</td><td>Lifetime cap on paid reviews (30 on the public demo)</td></tr>
+    <tr><td>LLM_DAILY_CALLS · LLM_PER_LEARNER_HOURLY</td><td>200 · 10</td><td>Daily and per-learner caps; beyond them, rules-only</td></tr>
+    <tr><td>AI_REVIEW · DATABASE_PATH · PORT</td><td>– · ./data/crit.db · 4000</td><td><code>AI_REVIEW=off</code> forces rules-only; SQLite file; HTTP port</td></tr>
+  </tbody>
+</table>
+
+<h2>How it's built</h2>
+<pre class="flow">server/  Node + TypeScript + Express · SQLite (node:sqlite) · Anthropic SDK · zod · Vitest
+  domain/       Attempt, Submission, Evaluation (state machine), Rubric, Feedback, DesignModel
+  formats/      DesignCanvasFormat: parse, readiness rules, → DesignModel, canonical rendering
+  evaluation/   Evaluator interface · RuleBasedEvaluator + DesignChecks · LLM judge · FeedbackAssembler · revision diff
+  application/  PracticeService · EvaluationWorker (lease, retries, recovery) · ProgressService · ports
+  infra/        SQLite repositories (versioned writes) · InProcessQueue · logger
+web/     React 19 + Vite + Tailwind 4 + motion · dagre for diagram layout · react-resizable-panels
+docs/    Research note, design note (PDF + Markdown), screenshots</pre>
+
+<h2>Key decisions</h2>
+<ul>
+  <li><b>Grade against a rubric, not a reference solution.</b> LLD has many valid answers. Six criteria with four described levels make feedback comparable and actionable.</li>
+  <li><b>Facts before opinions.</b> Deterministic checks run first, go to the model as verified facts, and cap its grades. The model must quote the design, and every quote is checked in code.</li>
+  <li><b>A structured canvas as the submission format:</b> the smallest format that captures both structure (checkable) and reasoning (judgeable). New formats plug in behind <code>SubmissionFormat</code>; new evaluators behind <code>Evaluator</code>.</li>
+  <li><b>Evaluation never blocks and never loses work.</b> Submit stores and enqueues (202). Evaluation is a state machine with a lease, retries and recovery. AI failure degrades to rules-only feedback instead of an error, and idempotency keys and content hashes prevent duplicates.</li>
+  <li><b>Cheap by design:</b> Claude Haiku 5.5 at low effort, about $0.0015 per review, cached on identical input, with lifetime, daily and per-learner caps.</li>
+</ul>
+
+<h2>Limitations</h2>
+<ul>
+  <li>No accounts: history is tied to an anonymous id in browser storage.</li>
+  <li>The deterministic checks are heuristic and English-centric, so they only produce findings and caps, never top grades.</li>
+  <li>The AI grader hasn't been calibrated against a hand-graded set yet.</li>
+  <li>Single process (SQLite and an in-process queue). The first piece to split out is the evaluation worker; see the design note.</li>
+  <li>The public demo runs on a free instance: it sleeps when idle (~50 s first load), resets its history on restart, and caps AI reviews at 30.</li>
+</ul>
+
+<header class="doc page-break" style="margin-top:0">
+  <div class="brand"><h1>AI usage</h1></div>
+  <div class="meta">The decisions where AI input mattered,<br>and what I did with it</div>
+</header>
+
+<p>I built this with Claude Code as a pair programmer. Most of the code was typed by the AI. I made the product and scope calls, steered the design, reviewed what came back, ran it, and pushed back where it didn't fit. Claude also did the first pass of the web research; the research note only cites pages it fetched and linked. Inside the product, a model (Claude Haiku 5.5) grades designs.</p>
+
+<div class="decision">
+  <h3>1. Stack: rejected Python</h3>
+  <p><span class="tag ai">AI suggested</span>Python + FastAPI with a plain HTML/JS frontend, because domain classes read cleanly, there's no build step, and it uses little memory.</p>
+  <p><span class="tag me">I decided</span>TypeScript end to end, with React + Tailwind. A practice tool lives or dies on whether people enjoy using it, and one language means the API types and the domain read the same way.</p>
+</div>
+
+<div class="decision">
+  <h3>2. What the learner submits: a structured canvas</h3>
+  <p><span class="tag ai">AI laid out</span>free text (easy, but almost nothing can be checked), a code skeleton (strongest evidence, but needs sandboxing and per-language parsing), and a structured "design canvas".</p>
+  <p><span class="tag me">I chose</span>the canvas: the smallest format with both structure (classes, typed relationships, a requirement map, which rules can check) and reasoning (flow, decisions, response to change, which a reviewer can judge). It also gave us the live UML diagram for free.</p>
+</div>
+
+<div class="decision">
+  <h3>3. Which model grades, and how much it may cost</h3>
+  <p><span class="tag ai">Default</span>a large model, for "better" feedback.</p>
+  <p><span class="tag me">I asked for</span>the cheapest model, plus rule-based feedback that works on its own, because a practice tool must be cheap enough to use repeatedly. The result is Claude Haiku 5.5 at low effort, a cache keyed on the exact input, and daily, per-learner and lifetime caps (30 reviews in total on the public demo). A real review measured about 4k input and 2k output tokens, roughly $0.0015.</p>
+</div>
+
+<div class="decision">
+  <h3>4. Not trusting the grader blindly</h3>
+  <p><span class="tag ai">AI proposed</span>three guards: make the model quote the learner's design for every grade, verify every quote in code, and let deterministic facts cap its grades.</p>
+  <p><span class="tag me">I kept all three.</span>The TUM paper found LLM graders are generous to weak work, and I wanted feedback that points at evidence, not a number. In the first real run all 18 quotes verified, and a cap fired on a deliberately weak revision 1. The schema also asks for evidence before the band, the judge never sees its earlier verdicts, and "what you fixed" is computed by code.</p>
+</div>
+
+<div class="decision">
+  <h3>5. The UI direction</h3>
+  <p><span class="tag me">I rejected</span>the first, dark editorial design after using it, and asked for a light theme, a more professional typeface (Inter), a new logo, resizable workspace panes, and much less text. I also replaced the "How feedback works" section because it looked AI-generated; it is now a single row of four steps.</p>
+</div>
+
+<div class="decision">
+  <h3>6. Where the AI's code was wrong, and how it was caught</h3>
+  <ul>
+    <li><span class="tag fix">Tests</span>The first <code>Evaluation</code> let a learner trigger "retry" on a running evaluation, because <code>running → queued</code> is a legal internal transition. The test suite caught it, and the fix guards learner retries explicitly.</li>
+    <li><span class="tag fix">Review</span>Screenshot review caught that the composition diamonds were drawn backwards and hidden under class boxes, that the class editor overflowed on a 390px phone, and that the diagram was too small to read, which led to an "Expand" view.</li>
+    <li><span class="tag fix">Skipped</span>Smooth-scroll (Lenis) came from the motion design guidelines I used. I left it out because it fights the scrollable panes of an editor app.</li>
+  </ul>
+</div>
+</body>
+</html>
