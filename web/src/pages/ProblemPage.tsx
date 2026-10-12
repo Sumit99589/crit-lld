@@ -51,7 +51,7 @@ export function ProblemPage() {
         </div>
       ) : (
         <>
-          <header className="mt-8 border-b border-line pb-10">
+          <header className="mt-8 border-b-2 border-ink pb-10">
             <div className="mb-5 flex flex-wrap items-center gap-4 font-mono text-[12px] text-muted">
               <DifficultyTag difficulty={p.difficulty} />
               <span>~{p.estimatedMinutes} min</span>
@@ -65,11 +65,11 @@ export function ProblemPage() {
           <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_360px]">
             <div className="space-y-12">
               <Reveal delay={0.35}>
-                <h2 className="mb-5 text-[13px] font-medium text-muted">Requirements</h2>
-                <ol className="space-y-px overflow-hidden rounded-2xl border border-line bg-line">
+                <h2 className="mb-5 text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">Requirements</h2>
+                <ol className="card divide-y-2 divide-ink/10 overflow-hidden rounded-2xl">
                   {p.requirements.map((r) => (
                     <li key={r.id} className="flex gap-5 bg-panel px-5 py-4">
-                      <span className="w-11 shrink-0 pt-0.5 font-mono text-[12px] text-redline">{r.id}</span>
+                      <span className="w-12 shrink-0 pt-0.5 font-mono text-[12px] font-bold">{r.id}</span>
                       <span className="text-[15px] leading-relaxed">{r.text}</span>
                     </li>
                   ))}
@@ -78,7 +78,7 @@ export function ProblemPage() {
 
               <Reveal inView className="grid gap-10 sm:grid-cols-2">
                 <div>
-                  <h2 className="mb-4 text-[13px] font-medium text-muted">Constraints</h2>
+                  <h2 className="mb-4 text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">Constraints</h2>
                   <ul className="space-y-3">
                     {p.constraints.map((c) => (
                       <li key={c} className="border-l border-line-strong pl-4 text-[14px] leading-relaxed text-fg/85">
@@ -88,7 +88,7 @@ export function ProblemPage() {
                   </ul>
                 </div>
                 <div>
-                  <h2 className="mb-4 text-[13px] font-medium text-muted">Out of scope</h2>
+                  <h2 className="mb-4 text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">Out of scope</h2>
                   <ul className="space-y-2">
                     {p.outOfScope.map((c) => (
                       <li key={c} className="text-[14px] text-muted line-through decoration-faint">
@@ -100,7 +100,7 @@ export function ProblemPage() {
               </Reveal>
 
               <Reveal inView>
-                <details className="group rounded-2xl border border-line px-5 py-4 bg-panel">
+                <details className="card group rounded-2xl px-5 py-4">
                   <summary className="cursor-pointer list-none text-sm text-muted transition-colors marker:hidden hover:text-fg">
                     <span className="group-open:hidden">Stuck? Show {p.hints.length} hints</span>
                     <span className="hidden group-open:inline">Hints</span>
@@ -118,8 +118,10 @@ export function ProblemPage() {
 
             <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
               <Reveal delay={0.45}>
-                <div className="relative overflow-hidden rounded-2xl border border-redline/30 bg-redline-soft/50 p-6">
-                  <p className="font-mono text-[11px] text-redline">Then the requirement changes</p>
+                <div className="card relative overflow-hidden rounded-2xl bg-lilac p-6">
+                  <p className="inline-block rounded-md border-[1.5px] border-ink bg-panel px-1.5 py-px font-mono text-[10.5px] font-medium uppercase">
+                    Then the requirement changes
+                  </p>
                   <h3 className="mt-2 text-xl font-semibold tracking-[-0.02em]">{p.changeScenario.title}</h3>
                   <p className="mt-3 text-[14px] leading-relaxed text-fg/85">{p.changeScenario.prompt}</p>
                 </div>
@@ -137,7 +139,7 @@ export function ProblemPage() {
 
               {mine.length > 0 && (
                 <Reveal delay={0.6}>
-                  <h3 className="mb-3 text-[13px] font-medium text-muted">Your attempts</h3>
+                  <h3 className="mb-3 text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">Your attempts</h3>
                   <ul className="space-y-2">
                     {mine.map((a) => {
                       const last = a.revisions.at(-1);
@@ -184,7 +186,9 @@ export function ProblemPage() {
 
               {rubric.data && (
                 <Reveal delay={0.65}>
-                  <h3 className="mb-3 text-[13px] font-medium text-muted">You'll be reviewed on</h3>
+                  <h3 className="mb-3 text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">
+                    You'll be reviewed on
+                  </h3>
                   <ul className="flex flex-wrap gap-1.5">
                     {rubric.data.criteria.map((c) => (
                       <li

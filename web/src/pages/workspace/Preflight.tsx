@@ -50,7 +50,7 @@ export function Preflight({ precheck, onJump }: { precheck: Precheck | undefined
 
       {(advice.length > 0 || notes.length > 0) && (
         <div>
-          <p className="mb-2 text-[13px] font-medium text-muted">Worth a look</p>
+          <p className="mb-2 text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">Worth a look</p>
           <ul className="space-y-1">
             <AnimatePresence initial={false}>
               {[...advice, ...notes].map((f) => (

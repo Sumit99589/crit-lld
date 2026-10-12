@@ -8,11 +8,14 @@ export function WordReveal({
   as: Tag = "h1",
   className = "",
   delay = 0,
+  highlight = [],
 }: {
   text: string;
   as?: ElementType;
   className?: string;
   delay?: number;
+  /** Words to mark with the highlighter stroke. */
+  highlight?: string[];
 }) {
   const reduce = useReducedMotion();
   const MotionTag = useMemo(() => motion.create(Tag), [Tag]);
@@ -39,7 +42,7 @@ export function WordReveal({
                   show: { y: 0, rotate: 0, opacity: 1, transition: { duration: 0.85, ease: EASE } },
                 }}
               >
-                {word}
+                {highlight.includes(word) ? <span className="marker">{word}</span> : word}
                 {" "}
               </motion.span>
             </span>

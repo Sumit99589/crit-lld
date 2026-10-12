@@ -1,21 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  --color-canvas: #f6f6f3;
+  --color-canvas: #f5f1e6;
   --color-panel: #ffffff;
-  --color-raised: #efeee9;
-  --color-line: rgb(17 20 28 / 0.09);
-  --color-line-strong: rgb(17 20 28 / 0.16);
-  --color-fg: #14161c;
-  --color-muted: #5b616d;
-  --color-faint: #8e949e;
-  --color-redline: #dc4a26;
-  --color-redline-soft: rgb(220 74 38 / 0.1);
-  --color-amber: #b7791f;
-  --color-ok: #1d8a5b;
+  --color-raised: #ede7d6;
+  --color-ink: #121212;
+  --color-line: rgb(18 18 18 / 0.14);
+  --color-line-strong: #121212;
+  --color-fg: #121212;
+  --color-muted: #55534d;
+  --color-faint: #8b877c;
 
-  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-sun: #ffd23f;
+  --color-cobalt: #3d5afe;
+  --color-redline: #ff4f2e;
+  --color-redline-soft: #ffe1d9;
+  --color-mint: #3ddc97;
+  --color-lilac: #c9b8ff;
+  --color-amber: #b07a00;
+  --color-ok: #0f8a55;
+
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
@@ -29,7 +35,6 @@ html {
   background: var(--color-canvas);
   color: var(--color-fg);
   font-family: var(--font-sans);
-  font-feature-settings: "cv11", "ss01", "ss03";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -39,146 +44,168 @@ body {
   background: var(--color-canvas);
 }
 
-/* Headings: one family everywhere, weight and tracking do the work. */
 .font-display {
-  font-weight: 650;
+  font-family: var(--font-display);
+  font-weight: 800;
   letter-spacing: -0.035em;
+  font-variation-settings: "wdth" 90;
 }
 
 ::selection {
-  background: rgb(220 74 38 / 0.18);
+  background: var(--color-sun);
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-redline);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline: 2px solid var(--color-cobalt);
+  outline-offset: 3px;
+  border-radius: 6px;
 }
 
-/* Soft light wash behind the home hero. */
-.hero-wash {
-  background:
-    radial-gradient(60% 70% at 12% 0%, rgb(220 74 38 / 0.09), transparent 70%),
-    radial-gradient(50% 60% at 88% 10%, rgb(59 110 246 / 0.08), transparent 70%),
-    linear-gradient(to bottom, #ffffff, var(--color-canvas));
+@layer components {
+  /* The one structural idea: black outline + hard offset shadow. */
+  .card {
+    background: var(--color-panel);
+    border: 2px solid var(--color-ink);
+    box-shadow: 4px 4px 0 var(--color-ink);
+  }
+
+  /* Clickable surfaces lift toward the cursor and press down when clicked. */
+  .lift {
+    transition:
+      transform 160ms var(--ease-out-quint),
+      box-shadow 160ms var(--ease-out-quint);
+  }
+  .lift:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--color-ink);
+  }
+  .lift:active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 var(--color-ink);
+  }
+
+  .press {
+    border: 2px solid var(--color-ink);
+    box-shadow: 3px 3px 0 var(--color-ink);
+    transition:
+      transform 120ms var(--ease-out-quint),
+      box-shadow 120ms var(--ease-out-quint),
+      background 150ms;
+  }
+  .press:hover:not(:disabled) {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--color-ink);
+  }
+  .press:active:not(:disabled) {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 var(--color-ink);
+  }
 }
 
-/* A red mark that draws itself under quoted evidence. */
+/* A highlighter stroke behind a word. */
+.marker {
+  background: linear-gradient(transparent 55%, var(--color-sun) 55%, var(--color-sun) 92%, transparent 92%);
+  padding: 0 0.08em;
+}
+
+/* Red-pen underline that draws itself under quoted evidence. */
 .redline {
   background-image: linear-gradient(var(--color-redline), var(--color-redline));
   background-repeat: no-repeat;
   background-position: 0 100%;
-  background-size: 0% 2px;
+  background-size: 0% 3px;
   transition:
     background-size 700ms var(--ease-out-quint),
     background-color 300ms;
   padding-bottom: 1px;
 }
 .redline[data-drawn="true"] {
-  background-size: 100% 2px;
+  background-size: 100% 3px;
 }
 .redline[data-active="true"] {
-  background-color: var(--color-redline-soft);
+  background-color: var(--color-sun);
 }
 
-/* Light that travels around the border of the active step. */
-@property --beam-angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
-}
+/* Marching border on the step that is in progress. */
 .beam {
   position: relative;
+  border: 2px dashed var(--color-ink) !important;
+  animation: march 1s linear infinite;
 }
-.beam::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1.5px;
-  background: conic-gradient(from var(--beam-angle), transparent 65%, var(--color-redline) 85%, transparent 100%);
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  animation: beam-spin 2.6s linear infinite;
-}
-@keyframes beam-spin {
-  to {
-    --beam-angle: 360deg;
+@keyframes march {
+  50% {
+    border-color: var(--color-cobalt) !important;
   }
 }
 
-.field {
-  width: 100%;
-  border-radius: 10px;
-  border: 1px solid var(--color-line-strong);
-  background: #fff;
-  padding: 0.6rem 0.75rem;
-  font-size: 0.875rem;
-  line-height: 1.55;
-  color: var(--color-fg);
-  transition:
-    border-color 200ms,
-    box-shadow 200ms;
-}
-.field::placeholder {
-  color: var(--color-faint);
-}
-.field:hover {
-  border-color: rgb(17 20 28 / 0.26);
-}
-.field:focus {
-  outline: none;
-  border-color: rgb(220 74 38 / 0.6);
-  box-shadow: 0 0 0 3px rgb(220 74 38 / 0.12);
-}
-
-.card {
-  background: var(--color-panel);
-  border: 1px solid var(--color-line);
-  box-shadow:
-    0 1px 2px rgb(17 20 28 / 0.04),
-    0 4px 16px -8px rgb(17 20 28 / 0.08);
+@layer components {
+  /* Inputs are filled areas, not more boxes inside boxes. */
+  .field {
+    width: 100%;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background: #f3efe4;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--color-fg);
+    transition:
+      border-color 150ms,
+      background 150ms,
+      box-shadow 150ms;
+  }
+  .field::placeholder {
+    color: var(--color-faint);
+  }
+  .field:hover {
+    background: #eee9dc;
+  }
+  .field:focus {
+    outline: none;
+    background: #fff;
+    border-color: var(--color-ink);
+    box-shadow: 3px 3px 0 var(--color-cobalt);
+  }
 }
 
 .scrollbar-thin {
   scrollbar-width: thin;
-  scrollbar-color: rgb(17 20 28 / 0.18) transparent;
+  scrollbar-color: rgb(18 18 18 / 0.3) transparent;
 }
 
 /* Drag handles between workspace panes. */
 .pane-handle {
   position: relative;
-  width: 1px;
-  background: var(--color-line);
+  width: 2px;
+  background: var(--color-ink);
   transition: background 150ms;
 }
 .pane-handle::after {
   content: "";
   position: absolute;
-  inset: 0 -4px;
+  inset: 0 -5px;
 }
 .pane-handle[aria-orientation="horizontal"] {
   width: auto;
-  height: 1px;
+  height: 2px;
 }
 .pane-handle[aria-orientation="horizontal"]::after {
-  inset: -4px 0;
+  inset: -5px 0;
 }
 .pane-handle:hover,
 .pane-handle[data-separator="active"],
 .pane-handle:focus-visible {
-  background: var(--color-redline);
+  background: var(--color-cobalt);
   outline: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .beam::before {
+  .beam {
     animation: none;
   }
-  .redline {
+  .redline,
+  .lift,
+  .press {
     transition: none;
   }
 }

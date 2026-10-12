@@ -180,7 +180,7 @@ function Workspace({
   const canvasPane = (
     <>
       <nav
-        className="sticky top-0 z-10 flex gap-1 overflow-x-auto border-b border-line bg-canvas/90 px-4 py-2.5 backdrop-blur scrollbar-thin"
+        className="sticky top-0 z-10 flex gap-1 overflow-x-auto border-b-2 border-ink bg-canvas px-4 py-2.5 backdrop-blur scrollbar-thin"
         aria-label="Canvas sections"
       >
         {SECTIONS.map((s) => {
@@ -191,17 +191,17 @@ function Workspace({
               key={s.id}
               onClick={() => setSection(s.id)}
               aria-current={active ? "step" : undefined}
-              className={`relative flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] transition-colors ${active ? "text-canvas" : "text-muted hover:text-fg"}`}
+              className={`relative flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] transition-colors ${active ? "font-semibold text-ink" : "text-muted hover:text-fg"}`}
             >
               {active && (
                 <motion.span
                   layoutId="section-pill"
-                  className="absolute inset-0 rounded-full bg-fg"
+                  className="absolute inset-0 rounded-full border-2 border-ink bg-sun"
                   transition={{ duration: 0.35, ease: EASE }}
                 />
               )}
               <span
-                className={`relative h-1.5 w-1.5 rounded-full ${done ? (active ? "bg-canvas" : "bg-ok") : active ? "border border-canvas" : "border border-faint"}`}
+                className={`relative h-2 w-2 rounded-full border border-ink ${done ? "bg-mint" : "bg-transparent"}`}
                 aria-hidden
               />
               <span className="relative">
@@ -261,7 +261,7 @@ function Workspace({
             )}
             {section === "change" && (
               <>
-                <div className="mb-5 rounded-2xl border border-redline/30 bg-redline/[0.05] p-5">
+                <div className="card mb-5 rounded-2xl bg-lilac p-5">
                   <p className="font-mono text-[11px] text-redline">{problem.changeScenario.title}</p>
                   <p className="mt-2 text-[14px] leading-relaxed">{problem.changeScenario.prompt}</p>
                 </div>
@@ -284,7 +284,7 @@ function Workspace({
   const diagramPane = (fill: boolean) => (
     <div className={`flex flex-col ${fill ? "h-full" : ""}`}>
       <div className="flex items-center justify-between px-5 pb-2 pt-4">
-        <h2 className="text-[13px] font-medium text-muted">Class diagram</h2>
+        <h2 className="text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">Class diagram</h2>
         <span className="flex items-center gap-3 font-mono text-[11px] text-faint">
           {draft.entities.filter((e) => e.name).length} classes · {draft.relationships.length} links
           <button
@@ -318,7 +318,7 @@ function Workspace({
   );
 
   const submitPane = (
-    <div className="border-t border-line bg-panel px-5 py-4">
+    <div className="border-t-2 border-ink bg-panel px-5 py-4">
       <div className="mb-3 flex items-center justify-between font-mono text-[11px] text-muted">
         <SaveIndicator state={saveState} savedAt={savedAt} />
         <span className="hidden lg:inline">Ctrl/⌘ + Enter to submit</span>
@@ -396,7 +396,7 @@ function Workspace({
           <div
             role="tablist"
             aria-label="Workspace panes"
-            className="sticky top-14 z-40 flex border-b border-line bg-canvas/90 backdrop-blur"
+            className="sticky top-14 z-40 flex border-b-2 border-ink bg-canvas"
           >
             {(["brief", "design", "checks"] as const).map((p) => (
               <button
@@ -415,7 +415,7 @@ function Workspace({
           {mobilePane === "checks" && (
             <aside className="bg-panel">
               {diagramPane(false)}
-              <div className="border-t border-line">{checksPane}</div>
+              <div className="border-t-2 border-ink">{checksPane}</div>
               {submitPane}
             </aside>
           )}
@@ -442,7 +442,7 @@ function DiagramOverlay({ draft, title, onClose }: { draft: DesignCanvas; title:
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
     >
-      <div className="flex items-center justify-between border-b border-line px-6 py-4">
+      <div className="flex items-center justify-between border-b-2 border-ink px-6 py-4">
         <p className="text-lg font-semibold tracking-[-0.02em]">{title} · class diagram</p>
         <div className="flex items-center gap-6">
           <div className="hidden md:block">
@@ -528,7 +528,7 @@ function BriefPanel({
       </div>
 
       <div>
-        <h3 className="mb-3 text-[12px] font-medium text-muted">Requirements</h3>
+        <h3 className="mb-3 text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">Requirements</h3>
         <ul className="space-y-2.5">
           {problem.requirements.map((r) => {
             const status = coverage.find((c) => c.requirementId === r.id);
@@ -562,7 +562,7 @@ function BriefPanel({
       </div>
 
       <div>
-        <h3 className="mb-3 text-[12px] font-medium text-muted">Constraints</h3>
+        <h3 className="mb-3 text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">Constraints</h3>
         <ul className="space-y-2">
           {problem.constraints.map((c) => (
             <li key={c} className="border-l border-line-strong pl-3 text-[12.5px] leading-relaxed text-fg/80">
@@ -574,7 +574,7 @@ function BriefPanel({
 
       {revisions.length > 0 && (
         <div>
-          <h3 className="mb-3 text-[12px] font-medium text-muted">Earlier revisions</h3>
+          <h3 className="mb-3 text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">Earlier revisions</h3>
           <ul className="space-y-1.5">
             {[...revisions].reverse().map((r) => (
               <li key={r.submissionId}>

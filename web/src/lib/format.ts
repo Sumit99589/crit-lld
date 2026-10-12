@@ -57,3 +57,11 @@ export function timeAgo(iso: string): string {
 export function newId(prefix: string): string {
   return `${prefix}${Math.random().toString(36).slice(2, 9)}`;
 }
+
+/** Each problem keeps its own colour everywhere it appears. */
+export const PROBLEM_COLOR: Record<string, string> = {
+  "parking-lot": "bg-sun",
+  "vending-machine": "bg-mint",
+  "expense-sharing": "bg-lilac",
+  "elevator-system": "bg-cobalt text-white",
+};

@@ -27,7 +27,7 @@ These are the decisions where the AI's input mattered, and what I did with it.
 
 ## 5. The UI direction
 
-The first version was a dark, editorial design. I rejected it after using it and asked for a light theme, a more professional typeface (now Inter), a new logo, resizable panes in the workspace, and much less text. I also replaced the "How feedback works" section because it looked AI-generated; it is now a single row of four steps.
+I rejected two visual directions after using them. The first was dark and editorial; the second, a plain light theme, felt generic and cluttered. I chose a neo-brutalist style (black outlines, hard shadows, a few bold colour blocks) because it makes the product feel like a tool with opinions rather than a template. I also asked for resizable workspace panes, far less text, a replacement for the "How feedback works" section that looked AI-generated, and a classier logo: the wordmark now replaces the dot of the "i" with a red square, a reviewer's mark.
 
 ## 6. Where the AI's code was wrong, and how it was caught
 

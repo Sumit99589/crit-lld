@@ -110,7 +110,13 @@ function smooth(points: { x: number; y: number }[]): string {
   return `${d} L${last.x},${last.y}`;
 }
 
-const STROKE = "rgba(20,22,28,0.55)";
+const STROKE = "#121212";
+const HEADER_FILL: Record<string, string> = {
+  class: "#ffd23f",
+  abstract: "#3ddc97",
+  interface: "#c9b8ff",
+  enum: "#ffffff",
+};
 
 function edgeStyle(type: RelationType) {
   switch (type) {
@@ -173,15 +179,22 @@ export function ClassDiagram({
             animate={{ opacity: 1, scale: 1, x: n.x, y: n.y }}
             transition={{ duration: 0.5, ease: EASE }}
           >
+            <rect x={3} y={3} width={n.width} height={n.height} rx={6} fill="#121212" />
             <rect
               width={n.width}
               height={n.height}
-              rx={7}
-              fill={lit ? "rgba(220,74,38,0.08)" : "#ffffff"}
-              stroke={lit ? "rgba(220,74,38,0.7)" : "rgba(20,22,28,0.22)"}
+              rx={6}
+              fill={lit ? "#ffe1d9" : "#ffffff"}
+              stroke="#121212"
+              strokeWidth={1.6}
             />
+            <path
+              d={`M0.8,${headerH} V6 a5.2,5.2 0 0 1 5.2,-5.2 H${n.width - 6} a5.2,5.2 0 0 1 5.2,5.2 V${headerH} Z`}
+              fill={HEADER_FILL[entity.kind]}
+            />
+            <line x1={0} x2={n.width} y1={headerH} y2={headerH} stroke="#121212" strokeWidth={1.6} />
             {stereotype && (
-              <text x={n.width / 2} y={15} textAnchor="middle" className="fill-muted font-mono" fontSize={9}>
+              <text x={n.width / 2} y={15} textAnchor="middle" className="fill-fg font-mono" fontSize={9}>
                 {stereotype}
               </text>
             )}
@@ -191,14 +204,13 @@ export function ClassDiagram({
               textAnchor="middle"
               className="fill-fg font-mono"
               fontSize={11.5}
-              fontWeight={500}
+              fontWeight={600}
               fontStyle={entity.kind === "abstract" ? "italic" : "normal"}
             >
               {entity.name}
             </text>
             {(n.methods.length > 0 || n.hiddenMethods > 0) && (
               <>
-                <line x1={0} x2={n.width} y1={headerH} y2={headerH} stroke="rgba(20,22,28,0.1)" />
                 {n.methods.map((m, i) => (
                   <text key={i} x={10} y={headerH + 15 + i * LINE_H} className="fill-muted font-mono" fontSize={9.5}>
                     {m.length > 32 ? `${m.slice(0, 31)}…` : m}
@@ -229,7 +241,7 @@ export function ClassDiagram({
               d={d}
               fill="none"
               stroke={STROKE}
-              strokeWidth={1.2}
+              strokeWidth={1.6}
               strokeDasharray={s.dash}
               markerEnd={s.end}
               markerStart={s.start}
@@ -274,7 +286,7 @@ export function DiagramMarkers() {
           markerHeight="9"
           orient="auto-start-reverse"
         >
-          <path d="M2,2 L10,6 L2,10" fill="none" stroke={STROKE} strokeWidth="1.3" />
+          <path d="M2,2 L10,6 L2,10" fill="none" stroke={STROKE} strokeWidth="1.6" />
         </marker>
         <marker id="m-diamond" viewBox="0 0 16 10" refX="1" refY="5" markerWidth="14" markerHeight="9" orient="auto">
           <path d="M1,5 L8,1 L15,5 L8,9 Z" fill="#ffffff" stroke={STROKE} />
@@ -288,7 +300,7 @@ export function DiagramMarkers() {
           markerHeight="9"
           orient="auto"
         >
-          <path d="M1,5 L8,1 L15,5 L8,9 Z" fill="rgba(20,22,28,0.8)" stroke={STROKE} />
+          <path d="M1,5 L8,1 L15,5 L8,9 Z" fill="#121212" stroke={STROKE} />
         </marker>
       </defs>
     </svg>

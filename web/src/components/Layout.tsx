@@ -5,31 +5,21 @@ import { api } from "../lib/api";
 import { EASE } from "../lib/format";
 import { useAsync } from "../lib/useAsync";
 
-/** A class box with a review tick in its lower compartment: a design that has been looked at. */
-export function LogoMark({ size = 26 }: { size?: number }) {
+/**
+ * Wordmark: "crit" with the dot of the i replaced by a red square,
+ * the mark a reviewer leaves on a page.
+ */
+export function Wordmark({ className = "" }: { className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden className="shrink-0">
-      <rect width="32" height="32" rx="8" className="fill-fg" />
-      <rect x="8" y="8.5" width="16" height="15" rx="2.5" fill="none" stroke="#fff" strokeWidth="2" />
-      <path d="M8 13.5h16" stroke="#fff" strokeWidth="2" />
-      <path
-        d="M12.5 18.6l2.3 2.2 4.7-4.6"
-        fill="none"
-        stroke="#ff6a43"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="[stroke-dasharray:12] [stroke-dashoffset:0] transition-[stroke-dashoffset] duration-500 ease-out-quint group-hover:[stroke-dashoffset:24]"
-      />
-    </svg>
-  );
-}
-
-export function Wordmark() {
-  return (
-    <Link to="/" className="group inline-flex items-center gap-2" aria-label="crit, home">
-      <LogoMark />
-      <span className="text-[19px] font-semibold leading-none tracking-[-0.04em]">crit</span>
+    <Link to="/" className={`group inline-flex items-baseline ${className}`} aria-label="crit, home">
+      <span aria-hidden className="font-display text-[27px] leading-none">
+        cr
+        <span className="relative inline-block">
+          ı
+          <span className="absolute left-1/2 top-[0.02em] h-[0.2em] w-[0.2em] -translate-x-1/2 bg-redline transition-transform duration-300 ease-out-quint group-hover:-translate-y-[0.12em] group-hover:rotate-45" />
+        </span>
+        t
+      </span>
     </Link>
   );
 }
@@ -40,7 +30,7 @@ function NavItem({ to, children }: { to: string; children: string }) {
       to={to}
       end={to === "/"}
       className={({ isActive }) =>
-        `relative text-sm transition-colors duration-200 ${isActive ? "text-fg" : "text-muted hover:text-fg"}`
+        `relative text-[15px] font-medium transition-colors duration-200 ${isActive ? "text-fg" : "text-muted hover:text-fg"}`
       }
     >
       {({ isActive }) => (
@@ -49,7 +39,7 @@ function NavItem({ to, children }: { to: string; children: string }) {
           {isActive && (
             <motion.span
               layoutId="nav-underline"
-              className="absolute -bottom-1.5 left-0 right-0 h-px bg-redline"
+              className="absolute -bottom-[19px] left-0 right-0 h-[3px] bg-ink"
               transition={{ duration: 0.45, ease: EASE }}
             />
           )}
@@ -86,7 +76,7 @@ export function Layout() {
       <motion.header
         animate={{ y: hidden ? -80 : 0 }}
         transition={{ duration: 0.35, ease: EASE }}
-        className="sticky top-0 z-50 border-b border-line bg-canvas/80 backdrop-blur-xl"
+        className="sticky top-0 z-50 border-b-2 border-ink bg-canvas"
       >
         <div
           className={`mx-auto flex h-14 items-center justify-between px-4 sm:px-6 ${inWorkspace ? "max-w-none" : wide ? "max-w-[1320px]" : "max-w-6xl"}`}
@@ -100,10 +90,10 @@ export function Layout() {
           </div>
           {ai && (
             <span
-              className="hidden items-center gap-2 font-mono text-[11px] text-muted sm:inline-flex"
+              className="hidden items-center gap-2 rounded-full border-2 border-ink bg-panel px-3 py-1 font-mono text-[11px] sm:inline-flex"
               title={ai.enabled ? `AI review by ${ai.model}` : "Rule-based feedback only"}
             >
-              <span className={`h-1.5 w-1.5 rounded-full ${ai.enabled ? "bg-ok" : "bg-amber"}`} />
+              <span className={`h-2 w-2 rounded-full border border-ink ${ai.enabled ? "bg-mint" : "bg-sun"}`} />
               {ai.enabled ? "AI review on" : "Rules-only mode"}
             </span>
           )}

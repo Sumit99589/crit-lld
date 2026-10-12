@@ -116,17 +116,17 @@ function Pending({ evaluation, onRetry }: { evaluation: EvaluationView; onRetry:
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: EASE, delay: i * 0.1 }}
-              className={`flex gap-4 rounded-2xl border p-5 ${active && !failed ? "beam border-transparent bg-panel" : active && failed ? "border-redline/40 bg-redline/[0.06]" : "border-line"}`}
+              className={`flex gap-4 rounded-2xl p-5 ${active && !failed ? "beam bg-panel" : active && failed ? "card bg-redline-soft" : done ? "card bg-mint" : "border-2 border-ink/25"}`}
             >
               <span
-                className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px] ${
+                className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border-2 border-ink text-[12px] font-bold ${
                   done
-                    ? "border-ok bg-ok/15 text-ok"
+                    ? "bg-panel"
                     : active
                       ? failed
-                        ? "border-redline text-redline"
-                        : "border-redline text-fg"
-                      : "border-line-strong text-faint"
+                        ? "bg-redline text-white"
+                        : "bg-sun"
+                      : "border-ink/25 text-faint"
                 }`}
               >
                 {done ? "✓" : active && !failed ? <Spinner className="h-3 w-3 text-redline" /> : i + 1}
@@ -191,7 +191,7 @@ function Report({
   return (
     <div className="mt-6 grid gap-10 xl:grid-cols-[minmax(0,1fr)_400px]">
       <div className="min-w-0">
-        <header className="border-b border-line pb-10">
+        <header className="border-b-2 border-ink pb-10">
           <ModeChip feedback={feedback} retryable={evaluation.retryable} onRetry={onRetry} />
           <Reveal delay={0.05}>
             <h1 className="mt-5 max-w-3xl text-[clamp(1.3rem,2vw,1.7rem)] font-semibold leading-[1.35] tracking-[-0.02em]">
@@ -204,11 +204,13 @@ function Report({
             <div className="space-y-7">
               {feedback.nextSteps.length > 0 && (
                 <Reveal delay={0.3}>
-                  <h2 className="mb-3 text-[13px] font-medium text-muted">Do these next</h2>
+                  <h2 className="mb-3 text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">Do these next</h2>
                   <ol className="space-y-3">
                     {feedback.nextSteps.map((s, i) => (
                       <li key={i} className="flex gap-3 text-[14.5px] leading-relaxed">
-                        <span className="mt-0.5 font-mono text-[12px] text-redline">{i + 1}</span>
+                        <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 border-ink bg-sun font-mono text-[12px] font-bold">
+                          {i + 1}
+                        </span>
                         {s}
                       </li>
                     ))}
@@ -217,11 +219,14 @@ function Report({
               )}
               {feedback.strengths.length > 0 && (
                 <Reveal delay={0.4}>
-                  <h2 className="mb-3 text-[13px] font-medium text-muted">Keep doing</h2>
+                  <h2 className="mb-3 text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">Keep doing</h2>
                   <ul className="space-y-2">
                     {feedback.strengths.map((s, i) => (
                       <li key={i} className="flex gap-3 text-[14px] leading-relaxed text-fg/85">
-                        <span className="mt-[9px] h-1 w-1 shrink-0 rounded-full bg-ok" aria-hidden />
+                        <span
+                          className="mt-[7px] h-2.5 w-2.5 shrink-0 rounded-[3px] border-2 border-ink bg-mint"
+                          aria-hidden
+                        />
                         {s}
                       </li>
                     ))}
@@ -283,7 +288,7 @@ function Report({
 
       <aside className="xl:sticky xl:top-20 xl:max-h-[calc(100dvh-6rem)] xl:self-start">
         <div className="flex h-full flex-col overflow-hidden card rounded-2xl">
-          <div className="flex items-center justify-between border-b border-line px-5 py-3">
+          <div className="flex items-center justify-between border-b-2 border-ink bg-sun px-5 py-3">
             <h2 className="text-[13px] font-medium">Your submission</h2>
             <span className="font-mono text-[11px] text-muted">{quotes.length} passages cited</span>
           </div>
@@ -308,8 +313,8 @@ function ModeChip({
   const [busy, setBusy] = useState(false);
   if (feedback.mode === "full") {
     return (
-      <p className="inline-flex flex-wrap items-center gap-2 font-mono text-[11px] text-muted">
-        <span className="h-1.5 w-1.5 rounded-full bg-ok" aria-hidden />
+      <p className="inline-flex flex-wrap items-center gap-2 rounded-full border-2 border-ink bg-mint px-3 py-1 font-mono text-[11px] text-ink">
+        <span className="h-2 w-2 rounded-full border border-ink bg-panel" aria-hidden />
         Rules + AI review
         {feedback.usage && (
           <span className="text-faint">
@@ -321,7 +326,7 @@ function ModeChip({
     );
   }
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-amber/30 bg-amber/[0.06] px-4 py-3">
+    <div className="card flex flex-wrap items-center gap-3 rounded-xl bg-sun px-4 py-3">
       <span className="h-1.5 w-1.5 rounded-full bg-amber" aria-hidden />
       <p className="text-[13px]">
         <span className="font-medium">Rule-based review only.</span>{" "}
@@ -347,7 +352,7 @@ function ModeChip({
 function BandProfile({ feedback }: { feedback: Feedback }) {
   return (
     <Reveal delay={0.2}>
-      <h2 className="mb-3 text-[13px] font-medium text-muted">Rubric profile</h2>
+      <h2 className="mb-3 text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">Rubric profile</h2>
       <ul className="card divide-y divide-line rounded-2xl">
         {feedback.criteria.map((c, i) => (
           <li key={c.criterion}>
@@ -412,18 +417,22 @@ function CriterionCard({
       )}
 
       {a.cappedFrom && (
-        <p className="mt-4 rounded-lg border border-amber/25 bg-amber/[0.06] px-3 py-2 text-[12.5px]">
+        <p className="mt-4 rounded-lg border-2 border-ink bg-sun px-3 py-2 text-[13px]">
           Capped from {BAND_LABEL[a.cappedFrom]} to {BAND_LABEL[a.band]}: {a.capReason}
         </p>
       )}
 
       <div className="mt-5 grid gap-5 md:grid-cols-2">
         <div>
-          <p className="mb-1.5 font-mono text-[11px] text-redline">Concern</p>
+          <p className="mb-2 inline-block rounded-md border-[1.5px] border-ink bg-redline px-1.5 py-px font-mono text-[10.5px] font-medium uppercase text-white">
+            Concern
+          </p>
           <p className="text-[14px] leading-relaxed">{a.concern}</p>
         </div>
         <div>
-          <p className="mb-1.5 font-mono text-[11px] text-ok">Try this</p>
+          <p className="mb-2 inline-block rounded-md border-[1.5px] border-ink bg-mint px-1.5 py-px font-mono text-[10.5px] font-medium uppercase">
+            Try this
+          </p>
           <p className="text-[14px] leading-relaxed">{a.suggestion}</p>
         </div>
       </div>
@@ -467,7 +476,7 @@ function CriterionCard({
 
 function Comparison({ comparison }: { comparison: NonNullable<Feedback["comparison"]> }) {
   return (
-    <section className="mt-12 rounded-3xl border border-line bg-gradient-to-br from-panel to-canvas p-7">
+    <section className="card mt-12 rounded-3xl bg-lilac p-7">
       <h2 className="font-display text-2xl">Since revision {comparison.previousRevision}</h2>
       {comparison.bandChanges.length > 0 ? (
         <ul className="mt-5 flex flex-wrap gap-2">
@@ -476,7 +485,7 @@ function Comparison({ comparison }: { comparison: NonNullable<Feedback["comparis
             return (
               <li
                 key={c.criterion}
-                className={`rounded-full border px-3 py-1.5 text-[13px] ${up ? "border-ok/40 text-ok" : "border-redline/40 text-redline"}`}
+                className={`rounded-full border-2 border-ink px-3 py-1 text-[13px] font-semibold ${up ? "bg-mint" : "bg-redline text-white"}`}
               >
                 {CRITERION_SHORT[c.criterion]} {up ? "↑" : "↓"} {BAND_LABEL[c.from]} → {BAND_LABEL[c.to]}
               </li>
@@ -567,7 +576,7 @@ function Coverage({ feedback }: { feedback: Feedback }) {
       <h2 id="coverage-heading" className="font-display text-2xl">
         Requirement coverage
       </h2>
-      <ul className="mt-5 space-y-px overflow-hidden rounded-2xl border border-line bg-line">
+      <ul className="card mt-5 divide-y-2 divide-ink/10 overflow-hidden rounded-2xl">
         {feedback.coverage.map((c) => (
           <li
             key={c.requirementId}

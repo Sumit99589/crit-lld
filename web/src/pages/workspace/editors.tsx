@@ -56,6 +56,14 @@ export function NarrativeEditor({
   );
 }
 
+// Same colours as the class headers in the diagram.
+const KIND_FILL: Record<CanvasEntity["kind"], string> = {
+  class: "bg-sun",
+  abstract: "bg-mint",
+  interface: "bg-lilac",
+  enum: "bg-panel",
+};
+
 const KIND_LABEL: Record<CanvasEntity["kind"], string> = {
   class: "class",
   abstract: "abstract",
@@ -99,14 +107,14 @@ export function ClassesEditor({ draft, update }: { draft: DesignCanvas; update: 
           >
             <div className="flex flex-wrap items-center gap-2">
               <input
-                className="field w-full font-mono sm:w-auto sm:max-w-[260px] sm:flex-1"
+                className="field w-full font-mono sm:w-auto sm:min-w-0 sm:max-w-[260px] sm:flex-1"
                 placeholder={i === 0 ? "ParkingLot" : "ClassName"}
                 value={e.name}
                 aria-label="Class name"
                 autoFocus={!e.name && i === draft.entities.length - 1}
                 onChange={(ev) => change(e.id, { name: ev.target.value })}
               />
-              <div role="radiogroup" aria-label="Kind" className="flex rounded-full border border-line p-0.5">
+              <div role="radiogroup" aria-label="Kind" className="flex rounded-full border-2 border-ink bg-panel p-0.5">
                 {ELEMENT_KINDS.map((k) => (
                   <button
                     key={k}
@@ -114,12 +122,12 @@ export function ClassesEditor({ draft, update }: { draft: DesignCanvas; update: 
                     role="radio"
                     aria-checked={e.kind === k}
                     onClick={() => change(e.id, { kind: k })}
-                    className={`relative rounded-full px-2.5 py-1 font-mono text-[11px] transition-colors ${e.kind === k ? "text-canvas" : "text-muted hover:text-fg"}`}
+                    className={`relative rounded-full px-2.5 py-1 font-mono text-[11px] transition-colors ${e.kind === k ? "font-semibold text-ink" : "text-muted hover:text-fg"}`}
                   >
                     {e.kind === k && (
                       <motion.span
                         layoutId={`kind-${e.id}`}
-                        className="absolute inset-0 rounded-full bg-fg"
+                        className={`absolute inset-0 rounded-full border-[1.5px] border-ink ${KIND_FILL[k]}`}
                         transition={{ duration: 0.3, ease: EASE }}
                       />
                     )}
@@ -130,10 +138,13 @@ export function ClassesEditor({ draft, update }: { draft: DesignCanvas; update: 
               <button
                 type="button"
                 onClick={() => remove(e.id)}
-                className="ml-auto rounded-full px-2 py-1 text-xs text-faint transition-colors hover:text-redline"
+                className="ml-auto flex h-8 w-8 items-center justify-center rounded-lg border-2 border-transparent text-faint transition-colors hover:border-ink hover:bg-redline hover:text-white"
                 aria-label={`Remove ${e.name || "class"}`}
+                title="Remove"
               >
-                Remove
+                <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
+                  <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="square" />
+                </svg>
               </button>
             </div>
             <AutoText
@@ -283,10 +294,13 @@ export function RelationshipsEditor({ draft, update }: { draft: DesignCanvas; up
             <button
               type="button"
               onClick={() => remove(r.id)}
-              className="px-2 text-xs text-faint hover:text-redline"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-transparent text-faint transition-colors hover:border-ink hover:bg-redline hover:text-white"
               aria-label="Remove relationship"
+              title="Remove"
             >
-              Remove
+              <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
+                <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="square" />
+              </svg>
             </button>
           </motion.div>
         ))}

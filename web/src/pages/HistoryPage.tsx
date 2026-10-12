@@ -45,32 +45,34 @@ function Body({ history, insights }: { history: AttemptHistory[]; insights: Insi
     <div className="mt-14 space-y-16">
       <section className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <Reveal delay={0.3}>
-          <h2 className="mb-4 text-[13px] font-medium text-muted">Focus areas</h2>
+          <h2 className="mb-4 text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">Focus areas</h2>
           {insights.focusAreas.length === 0 ? (
-            <p className="rounded-2xl border border-line p-6 text-[14px] text-muted">
+            <p className="card rounded-2xl p-6 text-[14px] text-muted">
               {insights.completedReviews < 2
                 ? "Focus areas appear once you have a couple of reviews to compare."
                 : "No criterion keeps coming up weak. Try a harder problem."}
             </p>
           ) : (
-            <ul className="space-y-3">
+            <ul className="card divide-y-2 divide-ink overflow-hidden rounded-2xl">
               {insights.focusAreas.map((f) => (
-                <li key={f.criterion} className="rounded-2xl border border-redline/30 bg-redline/[0.05] p-5">
-                  <p className="text-lg">{f.name}</p>
-                  <p className="mt-1 text-[13.5px] text-muted">{f.reason}</p>
+                <li key={f.criterion} className="flex items-center justify-between gap-4 bg-redline-soft px-5 py-3.5">
+                  <p className="font-display text-lg">{f.name}</p>
+                  <p className="text-right text-[13px] text-muted">{f.reason}</p>
                 </li>
               ))}
             </ul>
           )}
         </Reveal>
         <Reveal delay={0.4}>
-          <h2 className="mb-4 text-[13px] font-medium text-muted">Mistakes that repeat across attempts</h2>
+          <h2 className="mb-4 text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">
+            Mistakes that repeat across attempts
+          </h2>
           {insights.recurringIssues.length === 0 ? (
-            <p className="rounded-2xl border border-line p-6 text-[14px] text-muted">
+            <p className="card rounded-2xl p-6 text-[14px] text-muted">
               No structural issue has appeared in more than one attempt.
             </p>
           ) : (
-            <ul className="card divide-y divide-line rounded-2xl">
+            <ul className="card divide-y-2 divide-ink overflow-hidden rounded-2xl">
               {insights.recurringIssues.map((i) => (
                 <li key={i.code} className="px-5 py-4">
                   <div className="flex items-baseline justify-between gap-3">
@@ -87,15 +89,15 @@ function Body({ history, insights }: { history: AttemptHistory[]; insights: Insi
 
       {insights.completedReviews > 0 && (
         <section>
-          <h2 className="mb-4 text-[13px] font-medium text-muted">
+          <h2 className="mb-4 text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">
             Each criterion over your last {Math.min(insights.completedReviews, 8)} reviews
           </h2>
-          <ul className="grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="card grid gap-[2px] overflow-hidden rounded-2xl bg-ink sm:grid-cols-2 lg:grid-cols-3">
             {insights.trends.map((t, i) => (
               <Reveal key={t.criterion} inView delay={i * 0.05} className="bg-panel p-5">
                 <li className="list-none">
                   <div className="flex items-center justify-between">
-                    <p className="text-[14px]">{CRITERION_SHORT[t.criterion as CriterionId]}</p>
+                    <p className="font-display text-lg">{CRITERION_SHORT[t.criterion as CriterionId]}</p>
                     <BandMeter band={t.latest} size="sm" />
                   </div>
                   <Sparkline series={t.series} />
@@ -108,17 +110,14 @@ function Body({ history, insights }: { history: AttemptHistory[]; insights: Insi
       )}
 
       <section>
-        <h2 className="mb-4 text-[13px] font-medium text-muted">Attempts</h2>
+        <h2 className="mb-4 text-[11.5px] font-bold uppercase tracking-[0.09em] text-ink">Attempts</h2>
         <ul className="space-y-4">
           {history.map((a) => (
             <Reveal key={a.attemptId} inView>
               <li className="card rounded-2xl p-5">
                 <div className="flex flex-wrap items-baseline justify-between gap-3">
                   <div className="flex items-baseline gap-3">
-                    <Link
-                      to={`/problems/${a.problemSlug}`}
-                      className="text-lg font-semibold tracking-[-0.02em] hover:text-redline"
-                    >
+                    <Link to={`/problems/${a.problemSlug}`} className="font-display text-xl hover:text-cobalt">
                       {a.problemTitle}
                     </Link>
                     <span className="font-mono text-[11px] text-faint">started {timeAgo(a.startedAt)}</span>
@@ -138,7 +137,7 @@ function Body({ history, insights }: { history: AttemptHistory[]; insights: Insi
                       <li key={r.submissionId} className="shrink-0">
                         <Link
                           to={`/submissions/${r.submissionId}`}
-                          className="block w-[220px] rounded-xl border border-line bg-panel px-4 py-3 transition-colors hover:border-line-strong"
+                          className="lift block w-[220px] rounded-xl border-2 border-ink bg-panel px-4 py-3"
                         >
                           <div className="flex items-center justify-between">
                             <span className="text-[13px]">Revision {r.revision}</span>
