@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { Link } from "react-router";
+import { ApiError } from "../lib/api";
 import { BAND_LABEL, EASE, SEVERITY_LABEL } from "../lib/format";
 import type { Band, Difficulty, Severity } from "../lib/types";
 
@@ -124,6 +125,21 @@ export function Skeleton({ className = "" }: { className?: string }) {
 }
 
 export function ErrorPanel({ error, onRetry }: { error: Error; onRetry?: () => void }) {
+  // A 404 won't succeed on retry. Usually an old link: the demo server's data resets when it restarts.
+  if (error instanceof ApiError && error.status === 404) {
+    return (
+      <div role="alert" className="card rounded-xl bg-panel p-6">
+        <p className="font-display text-2xl">This link has expired.</p>
+        <p className="mt-2 text-sm text-muted">
+          The work it pointed to isn't on the server any more. The demo resets its data when it restarts, so older
+          links stop working. Pick a problem to start again.
+        </p>
+        <ButtonLink to="/" className="mt-5">
+          Back to problems
+        </ButtonLink>
+      </div>
+    );
+  }
   return (
     <div role="alert" className="card rounded-xl bg-redline-soft p-6">
       <p className="text-sm font-medium">{error.message}</p>
